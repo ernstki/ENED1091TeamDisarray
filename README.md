@@ -1,5 +1,5 @@
-13ss-ened1091-group-project
-===========================
+TEAM DIS[ARRAY]'S ENED1091 FINAL PROJECT
+========================================
 
 A repository for Team Dis[array]'s 13SS\_ENED091 group project: an animated demonstration of various sort algorithms implemented using a MATLAB GUI.
 
