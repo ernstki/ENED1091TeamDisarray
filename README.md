@@ -3,10 +3,15 @@ TEAM DIS[ARRAY]'S ENED1091 FINAL PROJECT
 
 A repository for Team Dis[array]'s 13SS\_ENED091 group project: an animated demonstration of various sort algorithms implemented using a MATLAB GUI.
 
+References
+----------
+1. [Animations and pseudo-code](http://www.sorting-algorithms.com) for common sorting algorithms [[sorting-algorithms.com](sorting-algorithms.com)]
+2. "[Sorting Out Sorting](http://youtu.be/SJwEwA5gOkM)" (video) by the Computer Systems Research Group, U. of Toronto (1981)
+
 Planned Features
 ----------------
-* Visualization of each iteration of at least 3 different CS I-ish sort algorithms (planned bubble, selection, quick) using bar plots and array contents (for small values of n).
-  * Drill-down menus for under-the-hood tweaks for several algorithms (_e.g._, quick sort with different methods for choosing a pivot; 3-way merge sort)
+* Visualization of each iteration of at least 3 different CS I-level sort algorithms (planned bubble, selection, quick) using bar plots and array contents (for small values of n).
+  * Drill-down menus for under-the-hood tweaks for several algorithms (<em>e.g.</em>, quick sort with different methods for choosing a pivot; 3-way merge sort)
 * Timed head-to-head race of up to three algorithms, with results in a bar plot format.
 
 
