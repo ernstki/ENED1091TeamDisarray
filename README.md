@@ -1,7 +1,7 @@
-TEAM DIS[ARRAY]'S ENED1091 FINAL PROJECT
+TEAM DISARRAY'S ENED1091 FINAL PROJECT
 ========================================
 
-A repository for Team Dis[array]'s 13SS\_ENED091 group project: an animated demonstration of various sort algorithms implemented using a MATLAB GUI.
+A repository for Team Disarray's 13SS\_ENED091 group project: an animated demonstration of various sort algorithms implemented using a MATLAB GUI.
 
 References
 ----------
