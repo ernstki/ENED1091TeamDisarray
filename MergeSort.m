@@ -1,4 +1,4 @@
-function [ output_args ] = MergeSort( input_args )
+function [ list ] = MergeSort( list )
 %Sample Sorting Algorithm
 %MERGE SORT
 
@@ -6,28 +6,49 @@ function [ output_args ] = MergeSort( input_args )
 
 %right now only good for even numbered lists
 
-list = [1,9,5,7,2,6]
-%number list
 
-n = length(list)/2
+if length(list) == 1
+    return  %Returns the list and doesn't sort if there's only 1 value 
+end
+
+
+middle = floor(length(list)/2);
 %gets the number in each sublist
 
-sl1 = list(1:1:n)
+left_list = list(1:middle);
 %sets up first sublist
 
-sl2 = list(n+1:1:length(list))
+right_list = list(middle+1:length(list));
 %sets up second sublist
 
-sl1 = sort(sl1)
-%sorts in ascending order
-%NOW to do withOUT sort help
+li = 1 ;
 
-sl2 = sort(sl2)
-%agains sorts
-%NEED to do withOUT sort help
+ri = 1 ;
 
-final_list = [sl1 + sl2]
-%NOW to merge and then sort again. HELP
+result = [] ; 
+
+while li < length(left_list) || ri < length(right_list)
+    if li < length(left_list) && ri < length(right_list)
+        if left_list(li) < right_list(ri)
+            result(length(result) + 1 ) = left_list(li) ; 
+            li = li + 1 ;
+        else 
+            result(length(result) + 1 ) = right_list(ri) ;
+            ri = ri + 1 ;
+        end 
+    elseif li <= length(left_list)
+        result(length(result) + 1 ) = left_list(li) ;
+        li = li + 1 ;
+    elseif ri <= length(right_list)
+        result(length(result) + 1 ) = right_list(ri) ;
+        ri = ri + 1 ;
+    end    
+end %while 
+
+return
+
+
+
 
 end
 
