@@ -8,23 +8,33 @@ t=[1:length(the_list)]; %plotting purposes
 
 while ordered==0 %while array is not in order
     sorted=0; %tracks number of sorts per k
-for k=1:(length(the_list)-1)
-    if the_list(k)>the_list(k+1)
-        temp=the_list(k);
-        the_list(k)=the_list(k+1);
-        the_list(k+1)=temp;
-        sorted=sorted+1;
-        swaps=swaps+1;
+    for k=1:(length(the_list)-1)
+        if the_list(k)>the_list(k+1)
+            temp=the_list(k);
+            the_list(k)=the_list(k+1);
+            the_list(k+1)=temp;
+            sorted=sorted+1;
+            swaps=swaps+1;
+        end
+        if nargin > 1 && varargin{1}
+            % If the second argument is a truthy value, then make a plot
+            % If the third argument is a handle to a set of axes:
+            if ishandle(varargin{1})
+                fig_h = varargin{1}
+                axes_h = get(fig_h, 'CurrentAxes')
+                % Set the axes we're about to draw on to the current axes of
+                % the figure handle we were given.
+                axes(axes_h)
+            end
+            % Otherwise, just create a new figure (useful for testing)
+            scatter(t,the_list) %plots
+            drawnow %neccessary command for updating plot in real time
+        end
     end
-    if nargin > 1 && varargin{1}
-        scatter(t,the_list) %plots
-        drawnow %neccessary command for updating plot in real time
+    if sorted==0 %if no sorts were made
+        ordered=1; %array is in order
     end
-end
-if sorted==0 %if no sorts were made
-    ordered=1; %array is in order
-end
 end
 
-end
+end % fuction bubble
 
