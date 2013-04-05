@@ -1,4 +1,4 @@
-function [ list ] = MergeSort( list )
+function [ result ] = MergeSort( list )
 %Sample Sorting Algorithm
 %MERGE SORT
 
