@@ -1,0 +1,42 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+AlgorithmExplore	AlgorithmExplore.m	/^function varargout = AlgorithmExplore(varargin)$/;"	f
+AlgorithmExplore_OpeningFcn	AlgorithmExplore.m	/^function AlgorithmExplore_OpeningFcn(hObject, eventdata, handles, varargin)$/;"	f
+AlgorithmExplore_OutputFcn	AlgorithmExplore.m	/^function varargout = AlgorithmExplore_OutputFcn(hObject, eventdata, handles)$/;"	f
+AlgorithmRace	AlgorithmRace.m	/^function varargout = AlgorithmRace(varargin)$/;"	f
+AlgorithmRace_OpeningFcn	AlgorithmRace.m	/^function AlgorithmRace_OpeningFcn(hObject, eventdata, handles, varargin)$/;"	f
+AlgorithmRace_OutputFcn	AlgorithmRace.m	/^function varargout = AlgorithmRace_OutputFcn(hObject, eventdata, handles)$/;"	f
+CloseMenuItem_Callback	AlgorithmExplore.m	/^function CloseMenuItem_Callback(hObject, eventdata, handles)$/;"	f
+CloseMenuItem_Callback	AlgorithmRace.m	/^function CloseMenuItem_Callback(hObject, eventdata, handles)$/;"	f
+FileMenu_Callback	AlgorithmExplore.m	/^function FileMenu_Callback(hObject, eventdata, handles)$/;"	f
+FileMenu_Callback	AlgorithmRace.m	/^function FileMenu_Callback(hObject, eventdata, handles)$/;"	f
+MergeSort	MergeSort.m	/^function [ result ] = MergeSort( list )$/;"	f
+OpenMenuItem_Callback	AlgorithmExplore.m	/^function OpenMenuItem_Callback(hObject, eventdata, handles)$/;"	f
+OpenMenuItem_Callback	AlgorithmRace.m	/^function OpenMenuItem_Callback(hObject, eventdata, handles)$/;"	f
+PrintMenuItem_Callback	AlgorithmExplore.m	/^function PrintMenuItem_Callback(hObject, eventdata, handles)$/;"	f
+PrintMenuItem_Callback	AlgorithmRace.m	/^function PrintMenuItem_Callback(hObject, eventdata, handles)$/;"	f
+TestUpdateAxes	TestUpdateAxes.m	/^function [] = TestUpdateAxes()$/;"	f
+axLogo_CreateFcn	AlgorithmRace.m	/^function axLogo_CreateFcn(hObject, eventdata, handles)$/;"	f
+btnGo_Callback	AlgorithmRace.m	/^function btnGo_Callback(hObject, eventdata, handles)$/;"	f
+btnGo_CreateFcn	AlgorithmRace.m	/^function btnGo_CreateFcn(hObject, eventdata, handles)$/;"	f
+bubble	bubble.m	/^function [ swaps ] = bubble( the_list, varargin )$/;"	f
+edtInputSize_Callback	AlgorithmRace.m	/^function edtInputSize_Callback(hObject, eventdata, handles)$/;"	f
+edtInputSize_CreateFcn	AlgorithmRace.m	/^function edtInputSize_CreateFcn(hObject, eventdata, handles)$/;"	f
+popAlg1_Callback	AlgorithmRace.m	/^function popAlg1_Callback(hObject, eventdata, handles)$/;"	f
+popAlg1_CreateFcn	AlgorithmRace.m	/^function popAlg1_CreateFcn(hObject, eventdata, handles)$/;"	f
+popAlg2_Callback	AlgorithmRace.m	/^function popAlg2_Callback(hObject, eventdata, handles)$/;"	f
+popAlg2_CreateFcn	AlgorithmRace.m	/^function popAlg2_CreateFcn(hObject, eventdata, handles)$/;"	f
+popAlg3_Callback	AlgorithmRace.m	/^function popAlg3_Callback(hObject, eventdata, handles)$/;"	f
+popAlg3_CreateFcn	AlgorithmRace.m	/^function popAlg3_CreateFcn(hObject, eventdata, handles)$/;"	f
+popupmenu1_Callback	AlgorithmExplore.m	/^function popupmenu1_Callback(hObject, eventdata, handles)$/;"	f
+popupmenu1_CreateFcn	AlgorithmExplore.m	/^function popupmenu1_CreateFcn(hObject, eventdata, handles)$/;"	f
+pushbutton1_Callback	AlgorithmExplore.m	/^function pushbutton1_Callback(hObject, eventdata, handles)$/;"	f
+rdoFewUnique_Callback	AlgorithmRace.m	/^function rdoFewUnique_Callback(hObject, eventdata, handles)$/;"	f
+rdoRandom_Callback	AlgorithmRace.m	/^function rdoRandom_Callback(hObject, eventdata, handles)$/;"	f
+rdoSorted_Callback	AlgorithmRace.m	/^function rdoSorted_Callback(hObject, eventdata, handles)$/;"	f
+sliInputSize_Callback	AlgorithmRace.m	/^function sliInputSize_Callback(hObject, eventdata, handles)$/;"	f
+sliInputSize_CreateFcn	AlgorithmRace.m	/^function sliInputSize_CreateFcn(hObject, eventdata, handles)$/;"	f
