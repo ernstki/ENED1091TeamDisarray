@@ -18,5 +18,5 @@ Planned Features
 Feature Wish List
 -----------------
 * Compare built-in MATLAB sort routine to the ones implemented as .m scripts
-* Compare our sort algorithms to one implemented in C (MEX interface)
+* Compare our sort algorithms to one implemented in C (MEX interface) - _see the '[qsort-mex](https://github.com/ernstki/ENED1091TeamDisarray/tree/master/qsort-mex)' folder in the master repo_
 * Benchmarking - record system information and allow upload/comparison of results from different machines/architectures for a standard suite of sort performance tests.
