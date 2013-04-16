@@ -1,6 +1,6 @@
 function varargout = AlgorithmRace(varargin)
 % ALGORITHM-RACE AlgorithmRace.fig
-%      Created by Team Disarray for the 13SS_ENED1091 final group projec
+%      Created by Team Disarray for the 13SS_ENED1091 final group project
 %
 %      Displays a graphical interface for comparing the run time of various
 %      sort algorithms on different input sizes, and input having different
@@ -8,7 +8,7 @@ function varargout = AlgorithmRace(varargin)
 %
 % See also: AlgorithmExplore.fig
 
-% Last Modified by GUIDE v2.5 07-Apr-2013 03:21:36
+% Last Modified by GUIDE v2.5 12-Apr-2013 15:42:35
 
 % Popup menu item constants (these must be "declared" in every function
 % they'll be referenced from!):
@@ -204,7 +204,29 @@ function popAlg2_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from popAlg2
  global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
         RADIX_SORT TREE_SORT QUICKSORT_MEX
-
+    
+ ph = get(hObject, 'Parent'); % get handle to the parent (should be the panel)
+ fig = findobj(ph, 'type', 'axes');
+ choice = get(handles.popAlg2, 'Value');
+    switch choice
+        %case getappdata(hObject, 'SELECTION_SORT')
+        case  SELECTION_SORT
+            %set(gcf, 'UserData'
+            %set(fig, 'UserData', SELECTION_SORT);
+        case BUBBLE_SORT
+            
+        case MERGE_SORT
+            
+        case QUICKSORT
+            
+        case QUICKSORT_3
+            
+        case RADIX_SORT
+            
+        case TREE_SORT
+            
+        case QUICKSORT_MEX
+    end
 
 % --- Executes during object creation, after setting all properties.
 function popAlg2_CreateFcn(hObject, eventdata, handles)
@@ -230,6 +252,28 @@ function popAlg3_Callback(hObject, eventdata, handles)
  global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
         RADIX_SORT TREE_SORT QUICKSORT_MEX
 
+     ph = get(hObject, 'Parent'); % get handle to the parent (should be the panel)
+ fig = findobj(ph, 'type', 'axes');
+ choice = get(handles.popAlg3, 'Value');
+    switch choice
+        %case getappdata(hObject, 'SELECTION_SORT')
+        case  SELECTION_SORT
+            %set(gcf, 'UserData'
+            %set(fig, 'UserData', SELECTION_SORT);
+        case BUBBLE_SORT
+            
+        case MERGE_SORT
+            
+        case QUICKSORT
+            
+        case QUICKSORT_3
+            
+        case RADIX_SORT
+            
+        case TREE_SORT
+            
+        case QUICKSORT_MEX
+    end
 
 % --- Executes during object creation, after setting all properties.
 function popAlg3_CreateFcn(hObject, eventdata, handles)
@@ -423,10 +467,90 @@ function btnGo_Callback(hObject, eventdata, handles)
     scatter(set_size, times, 'd');
     xlabel('Number of input elements (N)');
     ylabel('Time to sort (s)');
-    hold on;
+ 
     % TODO: Figure out how to determine the coefficients necessary to
     % represent O(n), O(log(n)), O(n log(n)), etc on the same plot.
     %plot(set_size, 
     pnl_label = sprintf('%s - finished (%0.2e s)', label_pref, ...
         total_time);
     set(pnlh, 'Title', pnl_label);
+%Contender 2
+global INPUT_MIN INPUT_FSTEP %INPUT_MAX
+    times = [];
+    pnlh = handles.pnlAlg2;
+    label_pref = get(pnlh, 'UserData');  % the label prefix
+    k = 1;
+    tic;
+    stop_set_size = get(handles.sliInputSize, 'Value');
+    set_size = INPUT_MIN:INPUT_FSTEP:stop_set_size;
+    for s = set_size
+        input_data = randi(s, 1, s);
+        tic;
+        BubbleSort(input_data);
+        times(k) = toc;
+        k = k + 1;
+        pnl_label = sprintf('%s - running - [%i / %i iterations]', ...
+            label_pref, k, round(stop_set_size / INPUT_MIN));
+        set(pnlh, 'Title', pnl_label);
+        drawnow expose;
+    end
+    total_time = toc;
+    axes(handles.axAlg2);
+    scatter(set_size, times, 'd');
+    xlabel('Number of input elements (N)');
+    ylabel('Time to sort (s)');
+
+    % TODO: Figure out how to determine the coefficients necessary to
+    % represent O(n), O(log(n)), O(n log(n)), etc on the same plot.
+    %plot(set_size, 
+    pnl_label = sprintf('%s - finished (%0.2e s)', label_pref, ...
+        total_time);
+    set(pnlh, 'Title', pnl_label);
+    
+%Contender 3
+
+global INPUT_MIN INPUT_FSTEP %INPUT_MAX
+    times = [];
+    pnlh = handles.pnlAlg3;
+    label_pref = get(pnlh, 'UserData');  % the label prefix
+    k = 1;
+    tic;
+    stop_set_size = get(handles.sliInputSize, 'Value');
+    set_size = INPUT_MIN:INPUT_FSTEP:stop_set_size;
+    for s = set_size
+        input_data = randi(s, 1, s);
+        tic;
+        BubbleSort(input_data);
+        times(k) = toc;
+        k = k + 1;
+        pnl_label = sprintf('%s - running - [%i / %i iterations]', ...
+            label_pref, k, round(stop_set_size / INPUT_MIN));
+        set(pnlh, 'Title', pnl_label);
+        drawnow expose;
+    end
+    total_time = toc;
+    axes(handles.axAlg3);
+    scatter(set_size, times, 'd');
+    xlabel('Number of input elements (N)');
+    ylabel('Time to sort (s)');
+    
+    % TODO: Figure out how to determine the coefficients necessary to
+    % represent O(n), O(log(n)), O(n log(n)), etc on the same plot.
+    %plot(set_size, 
+    pnl_label = sprintf('%s - finished (%0.2e s)', label_pref, ...
+        total_time);
+    set(pnlh, 'Title', pnl_label);
+
+% --- Executes on button press in pushbutton5.
+function pushbutton5_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over pushbutton5.
+function pushbutton5_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
