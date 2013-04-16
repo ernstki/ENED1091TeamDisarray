@@ -21,6 +21,7 @@ ordered=0;              % ordered is indicator for whether or not the entire
 swaps=0;                % swaps tracks number of swaps performed
 t=[1:length(the_list)]; % plotting purposes
 
+
 while ordered==0 %while array is not in order
     sorted=0; %tracks number of sorts per k
     for k=1:(length(the_list)-1)
@@ -37,12 +38,12 @@ while ordered==0 %while array is not in order
         if nargin > 1 && varargin{1}
             % If the second argument is a truthy value, then make a plot
             % If the third argument is a handle to a set of axes:
-            if ishandle(varargin{1})
-                fig_h = varargin{1}
-                axes_h = get(fig_h, 'CurrentAxes')
+            if nargin == 3 && ishandle(varargin{2})
                 % Set the axes we're about to draw on to the current axes of
                 % the figure handle we were given.
-                axes(axes_h)
+                axes_h = varargin{2};
+                %axes_h = get(fig_h, 'CurrentAxes')
+                axes(axes_h);
             end
             % Otherwise, just create a new figure (useful for testing)
             scatter(t,the_list) %plots
