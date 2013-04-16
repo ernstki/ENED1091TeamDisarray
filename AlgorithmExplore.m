@@ -22,7 +22,20 @@ function varargout = AlgorithmExplore(varargin)
 
 % Edit the above text to modify the response to help AlgorithmExplore
 
-% Last Modified by GUIDE v2.5 05-Apr-2013 17:39:05
+
+global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
+       RADIX_SORT TREE_SORT QUICKSORT_MEX;
+SELECTION_SORT = 1; % Selection Sort
+BUBBLE_SORT    = 2; % Bubble Sort
+MERGE_SORT     = 3; % Merge Sort
+QUICKSORT      = 4; % Quicksort
+QUICKSORT_3    = 5; % Quicksort (3-way partition)
+RADIX_SORT     = 6; % Radix sort
+TREE_SORT      = 7; % Tree sort
+QUICKSORT_MEX  = 8; % Quicksort (compiled C program)
+
+
+% Last Modified by GUIDE v2.5 16-Apr-2013 13:39:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -77,15 +90,15 @@ function varargout = AlgorithmExplore_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-% --- Executes on button press in pushbutton1.
-function pushbutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton1 (see GCBO)
+% --- Executes on button press in Go.
+function Go_Callback(hObject, eventdata, handles)
+% hObject    handle to Go (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 axes(handles.axes1);
 cla;
 
-popup_sel_index = get(handles.popupmenu1, 'Value');
+popup_sel_index = get(handles.popAlgs, 'Value');
 switch popup_sel_index
     case 1
         plot(rand(5));
@@ -97,6 +110,11 @@ switch popup_sel_index
         plot(membrane);
     case 5
         surf(peaks);
+    case 6
+        
+    case 7
+        
+    case 8 
 end
 
 
@@ -162,3 +180,59 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject, 'String', {'plot(rand(5))', 'plot(sin(1:0.01:25))', 'bar(1:.5:10)', 'plot(membrane)', 'surf(peaks)'});
+
+
+
+function SetSizeEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to SetSizeEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of SetSizeEdit as text
+%        str2double(get(hObject,'String')) returns contents of SetSizeEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function SetSizeEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to SetSizeEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popAlgs.
+function popAlgs_Callback(hObject, eventdata, handles)
+% hObject    handle to popAlgs (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popAlgs contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popAlgs
+
+
+% --- Executes during object creation, after setting all properties.
+function popAlgs_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popAlgs (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in Hyperlink.
+function Hyperlink_Callback(hObject, eventdata, handles)
+% hObject    handle to Hyperlink (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('-new')
+web('http://www.sorting-algorithms.com/')
