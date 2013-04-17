@@ -98,23 +98,26 @@ function Go_Callback(hObject, eventdata, handles)
 axes(handles.axes1);
 cla;
 
+%BubbleSort(randi(50,1,50), true, handles.axes1);
+%randi-depends on set size--no more than 50
 popup_sel_index = get(handles.popAlgs, 'Value');
 switch popup_sel_index
     case 1
-        plot(rand(5));
+        SelectionSort(randi(50,1,50),true,handles.axes1);
     case 2
-        plot(sin(1:0.01:25.99));
+        BubbleSort(randi(50,1,50), true, handles.axes1);
     case 3
-        bar(1:.5:10);
+        MergeSort(randi(50,1,50),true,handles.axes1);
     case 4
-        plot(membrane);
+        quicksort(randi(50,1,50),true,handles.axes1);
     case 5
-        surf(peaks);
+        %quicksort3
     case 6
-        
+        %RadixSort(randi(50,1,50),true,handles.axes1);
     case 7
-        
+        %TreeSort(randi(50,1,50),true,handles.axes1);
     case 8 
+        %quicksort mex
 end
 
 
