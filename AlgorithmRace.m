@@ -511,21 +511,28 @@ function btnClearAxes_Callback(hObject, eventdata, handles)
 
 %*** Try this:
     
-    ax_handles = findobj('-regexp', 'Tag', '^axAlg');
-    ax_handles = ax_handles';
-    disp(ax_handles);
-    k = 1;
-    tic;
-    %for ah = ax_handles
-    for ax = { 'axAlg1', 'axAlg2', 'axAlg3' }
-        %ah = findobj(gcf, 'Tag', ax);
-        ah = getappdata(gcf, ['h', 'ax']);
-        cla(ah);
-        
-        disp(k);
-        k = k + 1;
-    end
+%     ax_handles = findobj('-regexp', 'Tag', '^axAlg');
+%     ax_handles = ax_handles';
+%     disp(ax_handles);
+%     k = 1;
+%     tic;
+%     %for ah = ax_handles
+%     for ax = { 'axAlg1', 'axAlg2', 'axAlg3' }
+%         ah = findobj(gcf, 'Tag', ax);
+%         %ah = getappdata(gcf, ['h', 'ax']);
+%         axes(ah);
+%         cla(ah);
+%         
+%         disp(k);
+%         k = k + 1;
+%     end
     %run_time = toc;
+    axes(handles.axAlg1);
+    cla;
+    axes(handles.axAlg2);
+    cla;
+    axes(handles.axAlg3);
+    cla;
 
 
 
