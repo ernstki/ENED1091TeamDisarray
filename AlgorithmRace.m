@@ -8,21 +8,26 @@ function varargout = AlgorithmRace(varargin)
 %
 % See also: AlgorithmExplore.fig
 
-% Last Modified by GUIDE v2.5 16-Apr-2013 13:50:07
+% Last Modified by GUIDE v2.5 18-Apr-2013 08:47:07
 
-% Popup menu item constants (these must be "declared" in every function
-% they'll be referenced from!):
-global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
-       RADIX_SORT TREE_SORT QUICKSORT_MEX INPUT_MIN INPUT_MAX ...
-       INPUT_DEFAULT INPUT_FSTEP INPUT_CSTEP;
-SELECTION_SORT = 1; % Selection Sort
-BUBBLE_SORT    = 2; % Bubble Sort
-MERGE_SORT     = 3; % Merge Sort
-QUICKSORT      = 4; % Quicksort
-QUICKSORT_3    = 5; % Quicksort (3-way partition)
-RADIX_SORT     = 6; % Radix sort
-TREE_SORT      = 7; % Tree sort
-QUICKSORT_MEX  = 8; % Quicksort (compiled C program)
+% Popup  and context menu item constants (these must be "declared" in every
+% function they'll be referenced from!):
+global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
+       QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX CLEAR_AXES;
+SELECT_ALG     = 1;  % top popup menu option 
+INSERTION_SORT = 2;  % Insertion Sort                   (done)
+SELECTION_SORT = 3;  % Selection Sort                   (done)
+BUBBLE_SORT    = 4;  % Bubble Sort                      (done)
+MERGE_SORT     = 5;  % Merge Sort                       (recursive done)
+QUICKSORT      = 6;  % Quicksort
+QUICKSORT_3    = 7;  % Quicksort (3-way partition)
+RADIX_SORT     = 8;  % Radix sort
+TREE_SORT      = 9;  % Tree sort
+QUICKSORT_MEX  = 10; % Quicksort (compiled C program)
+CLEAR_AXES     = 11; % clear the current axes
+
+% Global constants for the input set size:
+global INPUT_MIN INPUT_MAX INPUT_DEFAULT INPUT_FSTEP INPUT_CSTEP;
 %VALUE_MAX      = 100;  % largest value;
 INPUT_MIN      = 10; % minimum input set
 INPUT_MAX      = 1000; % 
@@ -62,23 +67,32 @@ end
 % End initialization code - DO NOT EDIT
 
 % --- Executes just before AlgorithmRace is made visible.
-function AlgorithmRace_OpeningFcn(hObject, eventdata, handles, varargin)
+function AlgorithmRace_OpeningFcn(hObject, eventdata, handles, varargin) %#ok<*INUSL>
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to AlgorithmRace (see VARARGIN)
 
+% Updated this to use a 'STOP_PLOTTING' flag in the global 'handles'
+% structure intead. But both work equally well.
+%global STOP_PLOTTING;
 % Choose default command line output for AlgorithmRace
 handles.output = hObject;
 
 % How to save state in the global 'guidata' structure.
 % MATLAB passes by /value/ (reference until you change it?)
-%handles.score = 5;
+handles.STOP_PLOTTING = false;  % signal from some control to stop plotting
+handles.PLOTTING = false;       % are we currently plotting?
+%STOP_PLOTTING = false; % use 'handles' structure now.
 
+% Default to bar charts:
+handles.BAR_OR_SCATTER = 'bar'; % or 'scatter'
 
 % Update handles structure
 guidata(hObject, handles);
+
+% Set popAlg1 to default to the second item
 
 % This sets up the initial plot - only do when we are invisible
 % so window can get raised using AlgorithmRace.
@@ -91,7 +105,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = AlgorithmRace_OutputFcn(hObject, eventdata, handles)
+function varargout = AlgorithmRace_OutputFcn(hObject, eventdata, handles) %#ok<*INUSL>
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -102,14 +116,14 @@ varargout{1} = handles.output;
 
 
 % --------------------------------------------------------------------
-function FileMenu_Callback(hObject, eventdata, handles)
+%function FileMenu_Callback(hObject, eventdata, handles)
 % hObject    handle to FileMenu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function OpenMenuItem_Callback(hObject, eventdata, handles)
+function OpenMenuItem_Callback(hObject, eventdata, handles) %#ok<*INUSD,*INUSD>
 % hObject    handle to OpenMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -126,7 +140,7 @@ function PrintMenuItem_Callback(hObject, eventdata, handles)
 printdlg(handles.figure1)
 
 % --------------------------------------------------------------------
-function CloseMenuItem_Callback(hObject, eventdata, handles)
+function CloseMenuItem_Callback(hObject, eventdata, handles) %#ok<*DEFNU>
 % hObject    handle to CloseMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -158,7 +172,7 @@ function axLogo_CreateFcn(hObject, eventdata, handles)
 
 % === CONTENDER #1 CREATE
 % --- Executes during object creation, after setting all properties.
-function popAlg1_CreateFcn(hObject, eventdata, handles)
+function popAlgSelector_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to popAlg1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
@@ -169,100 +183,26 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% === CONTENDER #1 CALLBACK
-% --- Executes on selection change in popAlg1.
-function popAlg1_Callback(hObject, eventdata, handles)
+% === AXES POPUP MENU (ALGORITHM CHOICE) CALLBACK
+% --- Executes on selection change in popAlg1, popAlg2, and popAlg3
+function popAlgSelector_Callback(hObject, eventdata, handles)
 % hObject    handle to popAlg1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns popAlg1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popAlg1
- global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
-        RADIX_SORT TREE_SORT QUICKSORT_MEX
+% global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
+%        RADIX_SORT TREE_SORT QUICKSORT_MEX; %#ok<*NUSED>
+ 
+% Find the axes in the parent object and get a handle to them:
+ph = get(hObject, 'Parent');
+ah = findobj(ph, 'Type', 'axes');
+% This function sets the chosen algorithm in the 'UserData' of the axes
+% themselves.
+setAxesAlgorithm(ah, get(hObject, 'Value'));
+
     
- ph = get(hObject, 'Parent'); % get handle to the parent (should be the panel)
- fig = findobj(ph, 'type', 'axes');
- choice = get(hObject, 'Value');
-    switch choice
-        %case getappdata(hObject, 'SELECTION_SORT')
-        case SELECTION_SORT
-            fprintf('Selection sort was picked\n');
-            %set(gcf, 'UserData'
-            %set(fig, 'UserData', SELECTION_SORT);
-        case BUBBLE_SORT
-            fprintf('Bubble sort was picked\n');
-            
-        case MERGE_SORT
-            fprintf('Merge sort was picked\n');
-            
-        case QUICKSORT
-            fprintf('Quicksort was picked\n');
-            
-        case QUICKSORT_3
-            fprintf('Quicksort (3-way partition) was picked\n');
-            
-        case RADIX_SORT
-            fprintf('Radix sort was picked\n');
-            
-        case TREE_SORT
-            fprintf('Tree sort was picked\n');
-            
-        case QUICKSORT_MEX
-            fprintf('Quicksort (compiled MEX) sort was picked\n');
-    end
-
-
-% === CONTENDER #2 CREATE
-% --- Executes during object creation, after setting all properties.
-function popAlg2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popAlg2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% === CONTENDER #2 CALLBACK
-% --- Executes on selection change in popAlg2.
-function popAlg2_Callback(hObject, eventdata, handles)
-% hObject    handle to popAlg2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popAlg2 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popAlg2
- global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
-        RADIX_SORT TREE_SORT QUICKSORT_MEX
-
-
-% === CONTENDER #3 CREATE
-% --- Executes during object creation, after setting all properties.
-function popAlg3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popAlg3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% === CONTENDER #3 CALLBACK
-% --- Executes on selection change in popAlg3.
-function popAlg3_Callback(hObject, eventdata, handles)
-% hObject    handle to popAlg3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popAlg3 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popAlg3
- global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
-        RADIX_SORT TREE_SORT QUICKSORT_MEX
 
 
 
@@ -340,7 +280,7 @@ function edtInputSize_Callback(hObject, eventdata, handles) %#ok<*INUSL>
         set(hObject, 'Color', [0.6, 0.1, 0]); % a nice red color
     else
         % Round input size to the nearest (coarse) step:
-        input_size = input_size - mod(input_size, INPUT_CSTEP)
+        input_size = input_size - mod(input_size, INPUT_CSTEP);
         set(handles.sliInputSize, 'Value', input_size)
         set(hObject, 'UserData', input_size);
         set(hObject, 'Color', [0.25, 0.25, 0.25]); % back to default
@@ -357,68 +297,19 @@ function edtInputSize_Callback(hObject, eventdata, handles) %#ok<*INUSL>
 % [ ] Already Sorted (D)escending
 % [ ] Few unique
 
-% === RANDOM ===
-% --- Executes during object creation, after setting all properties.
-function rdoRandom_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to rdoRandom (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% --- Executes on button press in rdoRandom.
-function rdoRandom_Callback(hObject, eventdata, handles)
-% hObject    handle to rdoRandom (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of rdoRandom
-
-
+% === RANDOM
 % === ALREADY SORTED (ASCENDING)
-% --- Executes during object creation, after setting all properties.
-function rdoSortedAsc_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to rdoSortedAsc (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% --- Executes on button press in rdoSortedAsc.
-function rdoSortedAsc_Callback(hObject, eventdata, handles)
-% hObject    handle to rdoSortedAsc (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of rdoSortedAsc
-
-
 % === ALREADY SORTED (DESCENDING)
-% --- Executes during object creation, after setting all properties.
-function rdoSortedDesc_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to rdoSortedDesc (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% --- Executes on button press in rdoSortedDesc.
-function rdoSortedDesc_Callback(hObject, eventdata, handles)
-% hObject    handle to rdoSortedDesc (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of rdoSortedDesc
-
-
 % === FEW UNIQUE (MANY DUPLICATES)
-% --- Executes during object creation, after setting all properties.
-function rdoFewUnique_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to rdoFewUnique (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% --- Executes on button press in rdoFewUnique.
-function rdoFewUnique_Callback(hObject, eventdata, handles)
+% --- Executes for all radio buttons in the "Input Characteristics" group
+function rdoInputCharacteristics_Callback(hObject, eventdata, handles)
 % hObject    handle to rdoFewUnique (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of rdoFewUnique
+setInputCharacteristics(get(hObject, 'Value'));
 
 
 % ============================================================================
@@ -430,8 +321,8 @@ function pnlAlg1_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to pnlAlg1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-    % Remember the initial value of Title in 'UserData'
-    set(hObject, 'UserData', get(hObject, 'Title'));
+% Remember the initial value of Title in 'UserData'
+set(hObject, 'UserData', get(hObject, 'Title'));
 
 
 % ============================================================================
@@ -445,46 +336,72 @@ function btnGo_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Clear the global "stop_plotting" and update 'handles':
+handles.STOP_PLOTTING = false;
+guidata(hObject, handles);
+
 % When run, loop through all three axes, running that set of axes' selected
 % algorithm for the given input size. Then increase by INPUT_FSTEP and do
 % it again until reaching the value of sliInputSize (the max input size):
-    global INPUT_MIN INPUT_FSTEP %INPUT_MAX
-    % A list of handles to the figure's panels
-    %ph = get(hObject, 'Parent'); % get handle to parent
-    %panels = findobj(gcf, '-regexp', 'Tag', '^pnlAlg');
-    ax_handles = [ findobj(gcf, 'Tag', 'axAlg1'), ...
-                   findobj(gcf, 'Tag', 'axAlg2'), ...
-                   findobj(gcf, 'Tag', 'axAlg3') ];
-    if ishandle(ax_handles(1))
-        fprintf('ax_handles(1) is a handle!\n');
-        axes(ax_handles(1));
-        t=0:.1:5;
-        plot(t, t.*3);
-    end 
-    
-    
-    
-% --- Execute one iteration of a sort algorithm for the given axis handle
-function [run_time] = runIterationForAxis(which_axis, input_size, handles)
-% FIXME: It hurts to have to hard-code this.
+global INPUT_MIN INPUT_FSTEP %INPUT_MAX
 
-    %if which_axis == 1 
-        
-   
+% A list of handles to the figure's panels
+% Need to do it the second way because 'findobj' won't return them in the
+% same (numerical) order each time.
+%panels = findobj(gcf, '-regexp', 'Tag', '^pnlAlg');
+ax_handles = [ findobj(gcf, 'Tag', 'axAlg1'), ...
+               findobj(gcf, 'Tag', 'axAlg2'), ...
+               findobj(gcf, 'Tag', 'axAlg3') ];
+% if ishandle(ax_handles(1))
+%     %fprintf('ax_handles{1} is a handle!\n');
+%     axes(ax_handles(1));
+%     SelectionSort(ListRandom(400), true, gca);
+% end
 
+% Example of how to plot for all axes on the figure:
+handles.PLOTTING = true;
+guidata(hObject, handles);  % signal to other controls that a plot in progress
+set(handles.btnCancelClose, 'String', 'Cancel');
+btnbg = get(handles.btnCancelClose, 'BackgroundColor'); % remember this
+disp(btnbg);
+set(handles.btnCancelClose, 'BackgroundColor', 'red');
+for ax = ax_handles
+    axes(ax); %#ok<LAXES>
+    SelectionSort(ListRandom(100), false);
+end
+handles.PLOTTING = false;
+guidata(hObject, handles);  % signal to other controls that we're done
+set(handles.btnCancelClose, 'String', 'Cancel');
+set(handles.btnCancelClose, 'BackgroundColor', btnbg);
 
+    
 % === THE "CANCEL" BUTTON
 % --- Executes during object creation, after setting all properties.
-function btnCancel_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to btnCancel (see GCBO)
+function btnCancelClose_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to btnCancelClose (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+set(hObject, 'String', 'Close');
 
-% --- Executes on button press in btnCancel.
-function btnCancel_Callback(hObject, eventdata, handles)
-% hObject    handle to btnCancel (see GCBO)
+% --- Executes on button press in btnCancelClose.
+function btnCancelClose_Callback(hObject, eventdata, handles)
+% hObject    handle to btnCancelClose (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+%handles.stop_plotting = true;
+%global STOP_PLOTTING
+%STOP_PLOTTING=true;
+if handles.PLOTTING == true
+    handles.STOP_PLOTTING = true;
+    % the 'go' button callback will set PLOTTING to false when the sort
+    % algorithm falls through (I hope)
+    disp('User requested to stop plotting.');
+    set(hObject, 'String', 'Close');
+    guidata(hObject, handles); % update 'handles' structure for other controls
+else
+    fclose(gcf);
+end %if
+
 
 
 % === THE "CLEAR AXES" BUTTON
@@ -494,14 +411,87 @@ function btnClearAxes_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% === END OF AlgorithmRace.m ===
-% vim: tw=78 ts=4 sw=4 expandtab
+% Calls the helper function 'doForAllAxes' with an anonymous function which
+% clears the axis handle of whatever's passed as the first argument.
+doForAllAxes(@(ah) cla(ah), handles);
+
 
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
-% --- Otherwise, executes on mouse press in 5 pixel border or over text4.
-function text4_ButtonDownFcn(hObject, eventdata, handles)
-% hObject    handle to text4 (see GCBO)
+% --- Otherwise, executes on mouse press in 5 pixel border or over txtTitle.
+function txtTitle_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to txtTitle (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    web('./Help.htm');
+disp('User clicked on the title.');    
+web('./Help.htm');
+
+
+% ============================================================================
+%                                M E N U S            
+% ============================================================================
+
+% ==
+function mnuAxesContextMenu_Callback(hObject, eventdata, handles)
+% hObject    handle to mnuClearAxes (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% TODO: This really should be merged with setAxesAlgorithm(), since they do
+% virtually the same thing.
+ph = get(gcbo, 'Parent');
+ah = findobj(ph, 'Type', 'axes');
+switch get(hObject, 'Value')
+	case { INSERTION_SORT, SELECTION_SORT, BUBBLE_SORT, MERGE_SORT, ...
+		   QUICKSORT, QUICKSORT_3, RADIX_SORT, TREE_SORT, QUICKSORT_MEX }
+	   set(ah, 'UserData', alg);
+	case CLEAR_AXES
+		cla(ah);
+	otherwise
+		% There's an error
+		disp('Shouldn''t get here! Check setAxesAlgorithms().');
+end % switch      
+
+
+% ============================================================================
+%                    H E L P E R   F U N C T I O N S            
+% ============================================================================
+
+% === DO SOME FUNCTION FOR ALL AXES
+% --- Execute 'func' for each set of axes on the figure (used to clear axes)
+function [run_time] = doForAllAxes(func, handles)
+% AlgorithmRace.m - doForAllAxes
+%                   perform a function (passed as a function handle) on all
+%                   axes found in the second argument, 'handles'.
+    ax_handles = findobj('-regexp', 'Tag', '^axAlg');
+    tic;
+    for ah = ax_handles
+        func(ah)
+    end
+    run_time = toc;
+    
+% === SET THE INPUT SET CHARACTERISTICS
+% --- (random, already sorted, etc.)
+function setInputCharacteristics(type)
+    global INPUT_RANDOM INPUT_SORTED_ASC INPUT_SORTED_DESC ...
+           INPUT_FEW_UNIQUE;  %#ok<*NUSED>
+
+    handles.INPUT_CHARACTERISTICS = type;
+    guidata(hObject, handles); % update the handles structure
+    
+% === UPDATE SORT ALGORITHM FOR A SET OF AXES
+% --- Store the chosen sort algorithm in the axes' 'UserData' structure:
+function setAxesAlgorithm(ah, alg) %#ok<*DEFNU>
+    global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
+           QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX ...
+           CLEAR_AXES; %#ok<*NUSED,NUSED>
+    switch alg
+        case { INSERTION_SORT, SELECTION_SORT, BUBBLE_SORT, MERGE_SORT, ...
+               QUICKSORT, QUICKSORT_3, RADIX_SORT, TREE_SORT, QUICKSORT_MEX }
+           set(ah, 'UserData', alg);
+        otherwise
+            % There's an error
+            disp('Shouldn''t get here! Check setAxesAlgorithms().');
+    end % switch        	
+		
+% === END OF AlgorithmRace.m ===
+% vim: tw=78 ts=4 sw=4 expandtab
