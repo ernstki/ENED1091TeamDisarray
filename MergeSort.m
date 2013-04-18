@@ -25,9 +25,9 @@ end
 
 middle     = floor(length(list)/2); %gets the number in each sublist
 %sets up first sublist
-left_list  = MergeSort(list(1:middle), varargin{1});
+left_list  = MergeSort(list(1:middle), varargin{:});
 %sets up second sublist
-right_list = MergeSort(list(middle+1:length(list)), varargin{1});
+right_list = MergeSort(list(middle+1:length(list)), varargin{:});
 
 % Left and right list indices
 li = 1;

@@ -8,7 +8,7 @@ function varargout = AlgorithmRace(varargin)
 %
 % See also: AlgorithmExplore.fig
 
-% Last Modified by GUIDE v2.5 18-Apr-2013 08:47:07
+% Last Modified by GUIDE v2.5 18-Apr-2013 15:18:52
 
 % Popup  and context menu item constants (these must be "declared" in every
 % function they'll be referenced from!):
@@ -73,6 +73,7 @@ function AlgorithmRace_OpeningFcn(hObject, eventdata, handles, varargin) %#ok<*I
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to AlgorithmRace (see VARARGIN)
+global INSERTION_SORT INPUT_RANDOM;
 
 % Updated this to use a 'STOP_PLOTTING' flag in the global 'handles'
 % structure intead. But both work equally well.
@@ -80,19 +81,20 @@ function AlgorithmRace_OpeningFcn(hObject, eventdata, handles, varargin) %#ok<*I
 % Choose default command line output for AlgorithmRace
 handles.output = hObject;
 
-% How to save state in the global 'guidata' structure.
-% MATLAB passes by /value/ (reference until you change it?)
-handles.STOP_PLOTTING = false;  % signal from some control to stop plotting
-handles.PLOTTING = false;       % are we currently plotting?
-%STOP_PLOTTING = false; % use 'handles' structure now.
+% ----------------------------------------------------------------------------
+%             G L O B A L   S E T T I N G S   /   D E F A U L T S
+% ----------------------------------------------------------------------------
 
-% Default to bar charts:
-handles.BAR_OR_SCATTER = 'bar'; % or 'scatter'
-
+handles.STOP_PLOTTING         = false;     % signal from some control to stop
+handles.PLOTTING              = false;     % are we currently plotting?
+handles.BAR_OR_SCATTER        = 'bar';          % Default to bar charts
+%handles.INPUT_CHARACTERISTICS = INPUT_RANDOM;   % Default to INPUT_RANDOM
+%handles.SORT_ALGORITHM        = INSERTION_SORT; % Default sort algorithm
+set(handles.popAlg1, 'Value', INSERTION_SORT);  % default for 1st set of axes
+setAxesAlgorithm(handles.axAlg1, INSERTION_SORT);
 % Update handles structure
 guidata(hObject, handles);
-
-% Set popAlg1 to default to the second item
+setInputCharacteristics(INPUT_RANDOM);%, handles); % Default to INPUT_RANDOM
 
 % This sets up the initial plot - only do when we are invisible
 % so window can get raised using AlgorithmRace.
@@ -182,6 +184,17 @@ function popAlgSelector_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+% For some reason, this can't be put in the CreatFcn, maybe because the
+% control hasn't been filled with values yet. Moved to
+% AlgorithmRace_OpeningFcn instead.
+% % Set popAlg1 to default to the second item (insertion sort)
+% if strcmp(get(hObject, 'Tag'), 'popAlg1')
+%     disp('Initialize first popup (popAlg1) to default to insertion sort.');
+%     %*** disp(get(hObject, 'Tag'));
+%     set(hObject, 'Value', 1);
+%     drawnow expose update;
+% end
 
 % === AXES POPUP MENU (ALGORITHM CHOICE) CALLBACK
 % --- Executes on selection change in popAlg1, popAlg2, and popAlg3
@@ -312,18 +325,31 @@ function rdoInputCharacteristics_Callback(hObject, eventdata, handles)
 setInputCharacteristics(get(hObject, 'Value'));
 
 
+
 % ============================================================================
-%                 P A N E L   C R E A T E   F U N C T I O N S
+%            A X E S  /  P A N E L   C R E A T E   F U N C T I O N S
 % ============================================================================
 
 % --- Executes during object creation, after setting all properties.
-function pnlAlg1_CreateFcn(hObject, eventdata, handles)
+function axAlgX_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to axAlg1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: place code in OpeningFcn to populate axAlg1
+ax = get(hObject, 'Tag');
+% Set 'haxAlgN' to the handle to the axes
+setappdata(gcf, 'haxAlg1', hObject);    
+
+
+% --- Executes during object creation, after setting all properties.
+function pnlAlgX_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to pnlAlg1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
 % Remember the initial value of Title in 'UserData'
 set(hObject, 'UserData', get(hObject, 'Title'));
-
 
 % ============================================================================
 %                             B U T T O N S                     
@@ -335,10 +361,6 @@ function btnGo_Callback(hObject, eventdata, handles)
 % hObject    handle to btnGo (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Clear the global "stop_plotting" and update 'handles':
-handles.STOP_PLOTTING = false;
-guidata(hObject, handles);
 
 % When run, loop through all three axes, running that set of axes' selected
 % algorithm for the given input size. Then increase by INPUT_FSTEP and do
@@ -352,27 +374,98 @@ global INPUT_MIN INPUT_FSTEP %INPUT_MAX
 ax_handles = [ findobj(gcf, 'Tag', 'axAlg1'), ...
                findobj(gcf, 'Tag', 'axAlg2'), ...
                findobj(gcf, 'Tag', 'axAlg3') ];
-% if ishandle(ax_handles(1))
-%     %fprintf('ax_handles{1} is a handle!\n');
-%     axes(ax_handles(1));
-%     SelectionSort(ListRandom(400), true, gca);
-% end
 
-% Example of how to plot for all axes on the figure:
-handles.PLOTTING = true;
+% --- Set up some things
+% Clear the global "stop_plotting" and update 'handles':
+handles.STOP_PLOTTING = false;
+handles.PLOTTING      = true;
 guidata(hObject, handles);  % signal to other controls that a plot in progress
 set(handles.btnCancelClose, 'String', 'Cancel');
 btnbg = get(handles.btnCancelClose, 'BackgroundColor'); % remember this
-disp(btnbg);
-set(handles.btnCancelClose, 'BackgroundColor', 'red');
-for ax = ax_handles
-    axes(ax); %#ok<LAXES>
-    SelectionSort(ListRandom(100), false);
-end
+%*** disp(btnbg);
+set(handles.btnCancelClose, 'BackgroundColor', [1.0, 0.6, 0.6]); %reddish
+
+% ----------------------------------------------------------------------------
+%                      T I M E    T H E    P L O T S            
+% ----------------------------------------------------------------------------
+for ah = ax_handles % for each set of axes in ax_handles
+    % a cell array of function handles to the various sorting algorithms
+    sort_algs     = { @() disp('no alg selected'), @InsertionSort, ...
+                      @SelectionSort, @BubbleSort, ...
+                      @MergeSort, @Quicksort, @Quick3, @RadixSort, ...
+                      @TreeSort, @QuicksortMEX };
+    % a cell array of function handles to the various input generators
+    input_types   = { @ListRandom, @(n)ListAlreadySorted(n, 'ascend'), ...
+                      @(n)ListAlreadySorted(n, 'descend'), @ListFewUnique };
+        
+    times         = [];              % initialize times and empty vector
+    k             = 1;               % # of iterations, used to index into 't'
+    
+    % A function handle to the sort algorithm [1-10] to be used, which is
+    % stored in the axes' 'UserData' (not sure why I did it this way):
+    axalg = get(ah, 'UserData');
+    if isempty(axalg)
+        % Skip this set of axes if the 'UserData' is empty
+        fprintf('Axes %s have no algorithm selected. Skipping.\n', ...
+                get(ah, 'Tag'));
+        continue
+    else
+        %sorter        = sort_algs{ handles.SORT_ALGORITHM };
+        sorter        = sort_algs{ axalg };
+    end % if isempty(axalg)
+    
+    % a function handle to the input generator to be used, indexed by the
+    % value of handles.INPUT_CHARACTERISTICS:
+    input         = input_types{ handles.INPUT_CHARACTERISTICS };
+    pnlh          = get(ah, 'Parent'); % handle to the parent panel
+    default_lbl   = get(pnlh, 'UserData');  % the default label
+    stop_set_size = get(handles.sliInputSize, 'Value');   % max set size
+    set_size      = INPUT_MIN:INPUT_FSTEP:stop_set_size;  % need this to plot
+        
+    %*** DEBUGGING
+    %*** disp(ax);
+    %*** disp(get(ax, 'UserData'));
+    %*** return;
+    %*** DEBUGGING
+        
+    % Run INPUT_MIN:INPUT_FSTEP:<the value of sliInputSize> iterations
+    tic;                           % start timing (total run time)
+    for s = set_size % for each set size in 'set_size':
+        input_data = randi(s, 1, s);
+        tic;
+        % -- Run the sort algorithm for the given set size 's':
+        sorter(input(s)); % both of these are function handles set above
+        times(k) = toc;
+        k = k + 1;
+        pnl_label = sprintf('%s - running - [%i / %i iterations]', ...
+                            default_lbl, k, round(stop_set_size / INPUT_MIN));
+        set(pnlh, 'Title', pnl_label);
+        drawnow expose;
+    end % for s = set_size
+    total_time = toc; % stop timing (total time)
+    
+    % --- Now plot it:
+    axes(ah); %#ok<LAXES>          % set 'ax' to be the current axes
+    scatter(set_size, times, 'd');
+    xlabel('Number of input elements (N)');
+    ylabel('Time to sort (s)');
+    %hold on;
+    % TODO: Figure out how to determine the coefficients necessary to
+    % represent O(n), O(log(n)), O(n log(n)), etc on the same plot.
+    %plot(set_size, 
+    pnl_label = sprintf('%s - finished (%0.2e s)', default_lbl, ...
+                        total_time);
+    set(pnlh, 'Title', pnl_label);
+    
+end % for ax = ax_handles
+
+% --- Finish up
 handles.PLOTTING = false;
 guidata(hObject, handles);  % signal to other controls that we're done
-set(handles.btnCancelClose, 'String', 'Cancel');
+set(handles.btnCancelClose, 'String', 'Close');
 set(handles.btnCancelClose, 'BackgroundColor', btnbg);
+
+% === END OF function btnGo_Callback()
 
     
 % === THE "CANCEL" BUTTON
@@ -393,15 +486,16 @@ function btnCancelClose_Callback(hObject, eventdata, handles)
 %STOP_PLOTTING=true;
 if handles.PLOTTING == true
     handles.STOP_PLOTTING = true;
-    % the 'go' button callback will set PLOTTING to false when the sort
-    % algorithm falls through (I hope)
+    % the 'go' button callback should set PLOTTING to false when the sort
+    % algorithm falls through, but I'll set it here anyway in case the sort
+    % algorithm is interrupted/crashes:
+    handles.PLOTTING = false;
     disp('User requested to stop plotting.');
     set(hObject, 'String', 'Close');
     guidata(hObject, handles); % update 'handles' structure for other controls
 else
-    fclose(gcf);
+    close(gcf);
 end %if
-
 
 
 % === THE "CLEAR AXES" BUTTON
@@ -413,7 +507,25 @@ function btnClearAxes_Callback(hObject, eventdata, handles)
 
 % Calls the helper function 'doForAllAxes' with an anonymous function which
 % clears the axis handle of whatever's passed as the first argument.
-doForAllAxes(@(ah) cla(ah), handles);
+%doForAllAxes(@(ah) cla(ah), handles);
+
+%*** Try this:
+    
+    ax_handles = findobj('-regexp', 'Tag', '^axAlg');
+    ax_handles = ax_handles';
+    disp(ax_handles);
+    k = 1;
+    tic;
+    %for ah = ax_handles
+    for ax = { 'axAlg1', 'axAlg2', 'axAlg3' }
+        %ah = findobj(gcf, 'Tag', ax);
+        ah = getappdata(gcf, ['h', 'ax']);
+        cla(ah);
+        
+        disp(k);
+        k = k + 1;
+    end
+    %run_time = toc;
 
 
 
@@ -438,12 +550,17 @@ function mnuAxesContextMenu_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % TODO: This really should be merged with setAxesAlgorithm(), since they do
 % virtually the same thing.
+global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
+       QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX ...
+       CLEAR_AXES; %#ok<*NUSED,NUSED>
+       
 ph = get(gcbo, 'Parent');
 ah = findobj(ph, 'Type', 'axes');
-switch get(hObject, 'Value')
+menupos = get(hObject, 'Position'); % basically the same as 'Value'
+switch menupos
 	case { INSERTION_SORT, SELECTION_SORT, BUBBLE_SORT, MERGE_SORT, ...
 		   QUICKSORT, QUICKSORT_3, RADIX_SORT, TREE_SORT, QUICKSORT_MEX }
-	   set(ah, 'UserData', alg);
+	   set(ah, 'UserData', menupos);
 	case CLEAR_AXES
 		cla(ah);
 	otherwise
@@ -458,25 +575,43 @@ end % switch
 
 % === DO SOME FUNCTION FOR ALL AXES
 % --- Execute 'func' for each set of axes on the figure (used to clear axes)
-function [run_time] = doForAllAxes(func, handles)
+function [run_time] = doForAllAxes(func) %, handles)
 % AlgorithmRace.m - doForAllAxes
 %                   perform a function (passed as a function handle) on all
 %                   axes found in the second argument, 'handles'.
     ax_handles = findobj('-regexp', 'Tag', '^axAlg');
+    ax_handles = ax_handles';
+    disp(ax_handles);
+    k = 1;
     tic;
     for ah = ax_handles
+    %for ax = { 'axAlg1', 'axAlg2', 'axAlg3' }
         func(ah)
+        %func(findobj(gcf, 'Tag', ax))
+        disp(k);
+        k = k + 1;
     end
     run_time = toc;
     
+% XXX SET THE SORTING ALGORITHM
+% --- (insertion, selection, bubble, etc.) These are defined as globals
+%     near the top of this file.
+% function setSortAlgorithm(alg)
+%     global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
+%        QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX;
+% 
+%     handles.SORT_ALGORITHM = alg;
+%     guidata(hObject, handles); % update the handles structure
+    
 % === SET THE INPUT SET CHARACTERISTICS
 % --- (random, already sorted, etc.)
-function setInputCharacteristics(type)
+function setInputCharacteristics(type)%, handles)
     global INPUT_RANDOM INPUT_SORTED_ASC INPUT_SORTED_DESC ...
            INPUT_FEW_UNIQUE;  %#ok<*NUSED>
 
+    handles = guidata(gcf);
     handles.INPUT_CHARACTERISTICS = type;
-    guidata(hObject, handles); % update the handles structure
+    guidata(gcf, handles); % update the handles structure
     
 % === UPDATE SORT ALGORITHM FOR A SET OF AXES
 % --- Store the chosen sort algorithm in the axes' 'UserData' structure:
@@ -488,6 +623,9 @@ function setAxesAlgorithm(ah, alg) %#ok<*DEFNU>
         case { INSERTION_SORT, SELECTION_SORT, BUBBLE_SORT, MERGE_SORT, ...
                QUICKSORT, QUICKSORT_3, RADIX_SORT, TREE_SORT, QUICKSORT_MEX }
            set(ah, 'UserData', alg);
+           ph = get(ah, 'Parent');
+           ch = findobj(ph, '-regexp', 'Tag', 'pop');  % popup control
+           set(ch, 'Value', alg);
         otherwise
             % There's an error
             disp('Shouldn''t get here! Check setAxesAlgorithms().');
