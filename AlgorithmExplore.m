@@ -23,19 +23,21 @@ function varargout = AlgorithmExplore(varargin)
 % Edit the above text to modify the response to help AlgorithmExplore
 
 
-global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
-       RADIX_SORT TREE_SORT QUICKSORT_MEX;
-SELECTION_SORT = 1; % Selection Sort
-BUBBLE_SORT    = 2; % Bubble Sort
-MERGE_SORT     = 3; % Merge Sort
-QUICKSORT      = 4; % Quicksort
-QUICKSORT_3    = 5; % Quicksort (3-way partition)
-RADIX_SORT     = 6; % Radix sort
-TREE_SORT      = 7; % Tree sort
-QUICKSORT_MEX  = 8; % Quicksort (compiled C program)
+global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
+       QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX;
+SELECT_ALG     = 1;  % top popup menu option 
+INSERTION_SORT = 2;  % Insertion Sort                   (done)
+SELECTION_SORT = 3;  % Selection Sort                   (done)
+BUBBLE_SORT    = 4;  % Bubble Sort                      (done)
+MERGE_SORT     = 5;  % Merge Sort                       (recursive done)
+QUICKSORT      = 6;  % Quicksort
+QUICKSORT_3    = 7;  % Quicksort (3-way partition)
+RADIX_SORT     = 8;  % Radix sort
+TREE_SORT      = 9;  % Tree sort
+QUICKSORT_MEX  = 10; % Quicksort (compiled C program)
 
 
-% Last Modified by GUIDE v2.5 16-Apr-2013 13:39:14
+% Last Modified by GUIDE v2.5 19-Apr-2013 13:46:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -70,12 +72,6 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-% This sets up the initial plot - only do when we are invisible
-% so window can get raised using AlgorithmExplore.
-if strcmp(get(hObject,'Visible'),'off')
-    plot(rand(5));
-end
-
 % UIWAIT makes AlgorithmExplore wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
@@ -95,29 +91,37 @@ function Go_Callback(hObject, eventdata, handles)
 % hObject    handle to Go (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
+       QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX;
 axes(handles.axes1);
 cla;
 
-%BubbleSort(randi(50,1,50), true, handles.axes1);
-%randi-depends on set size--no more than 50
+%need help with the edit size option
 popup_sel_index = get(handles.popAlgs, 'Value');
+handles.PLOTTING = true;
+guidata(hObject,handles);
+
 switch popup_sel_index
-    case 1
-        SelectionSort(randi(50,1,50),true,handles.axes1);
-    case 2
-        BubbleSort(randi(50,1,50), true, handles.axes1);
-    case 3
-        MergeSort(randi(50,1,50),true,handles.axes1);
-    case 4
-        quicksort(randi(50,1,50),true,handles.axes1);
-    case 5
-        %quicksort3
-    case 6
-        %RadixSort(randi(50,1,50),true,handles.axes1);
-    case 7
-        %TreeSort(randi(50,1,50),true,handles.axes1);
-    case 8 
-        %quicksort mex
+    case SELECT_ALG
+        
+    case INSERTION_SORT
+        InsertionSort(handles.SetSizeEdit,true,handles.axes1);
+    case SELECTION_SORT
+        SelectionSort(handles.SetSizeEdit,true,handles.axes1);
+    case BUBBLE_SORT
+        BubbleSort(handles.SetSizeEdit, true, handles.axes1);
+    case MERGE_SORT
+        MergeSort(handles.SetSizeEdit,true,handles.axes1);
+    case QUICKSORT
+        Quicksort(handles.SetSizeEdit,true,handles.axes1);
+    case QUICKSORT_3
+        Quicksort3
+    case RADIX_SORT
+        RadixSort(handles.setSizeEdit,true,handles.axes1);
+    case TREE_SORT
+        TreeSort(handles.setSizeEdit,true,handles.axes1);
+    case QUICKSORT_MEX
+        QuicksortMEX
 end
 
 
@@ -239,3 +243,4 @@ function Hyperlink_Callback(hObject, eventdata, handles)
 
 web('-new')
 web('http://www.sorting-algorithms.com/')
+
