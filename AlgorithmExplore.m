@@ -68,7 +68,7 @@ function AlgorithmExplore_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for AlgorithmExplore
 handles.output = hObject;
-
+handles.BAR_OR_SCATTER = 'bar';
 % Update handles structure
 guidata(hObject, handles);
 
@@ -96,32 +96,33 @@ global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
 axes(handles.axes1);
 cla;
 
-%need help with the edit size option
 popup_sel_index = get(handles.popAlgs, 'Value');
 handles.PLOTTING = true;
 guidata(hObject,handles);
-
+SetSize = get(handles.SetSizeEdit,'Value');
+class(SetSize);
+list = randi(SetSize,1,SetSize);
 switch popup_sel_index
     case SELECT_ALG
         
     case INSERTION_SORT
-        InsertionSort(handles.SetSizeEdit,true,handles.axes1);
+        InsertionSort(list,true,handles.axes1);
     case SELECTION_SORT
-        SelectionSort(handles.SetSizeEdit,true,handles.axes1);
+        SelectionSort(list,true,handles.axes1);
     case BUBBLE_SORT
-        BubbleSort(handles.SetSizeEdit, true, handles.axes1);
+        BubbleSort(list, true, handles.axes1);
     case MERGE_SORT
-        MergeSort(handles.SetSizeEdit,true,handles.axes1);
+        MergeSort(list,true,handles.axes1);
     case QUICKSORT
-        Quicksort(handles.SetSizeEdit,true,handles.axes1);
+        Quicksort(list,true,handles.axes1);
     case QUICKSORT_3
-        Quicksort3
+        Quicksort3(list,true,handles.axes1);
     case RADIX_SORT
-        RadixSort(handles.setSizeEdit,true,handles.axes1);
+        RadixSort(list,true,handles.axes1);
     case TREE_SORT
-        TreeSort(handles.setSizeEdit,true,handles.axes1);
+        TreeSort(list,true,handles.axes1);
     case QUICKSORT_MEX
-        QuicksortMEX
+        QuicksortMEX(list,true,handles.axes1);
 end
 
 
