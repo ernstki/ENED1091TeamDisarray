@@ -22,7 +22,7 @@ function varargout = launch(varargin)
 
 % Edit the above text to modify the response to help launch
 
-% Last Modified by GUIDE v2.5 16-Apr-2013 13:25:38
+% Last Modified by GUIDE v2.5 18-Apr-2013 17:23:37
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -75,6 +75,8 @@ varargout{1} = handles.output;
 
 % --- Executes on button press in explorebutton.
 function explorebutton_Callback(hObject, eventdata, handles)
+AlgorithmExplore
+
 % hObject    handle to explorebutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -82,6 +84,15 @@ function explorebutton_Callback(hObject, eventdata, handles)
 
 % --- Executes on button press in racebutton.
 function racebutton_Callback(hObject, eventdata, handles)
+AlgorithmRace
 % hObject    handle to racebutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in helplaunch.
+function helplaunch_Callback(hObject, eventdata, handles)
+% hObject    handle to helplaunch (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('./Help.html');
