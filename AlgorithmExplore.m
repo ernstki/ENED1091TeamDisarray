@@ -91,15 +91,19 @@ function Go_Callback(hObject, eventdata, handles)
 % hObject    handle to Go (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if handles.PLOTTING
+    return
+end 
 global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
        QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX;
 axes(handles.axes1);
 cla;
 
 popup_sel_index = get(handles.popAlgs, 'Value');
+handles.STOP_PLOTTING = false;
 handles.PLOTTING = true;
 guidata(hObject,handles);
-SetSize = get(handles.SetSizeEdit,'Value');
+SetSize = str2num(get(handles.SetSizeEdit,'String'));
 class(SetSize);
 list = randi(SetSize,1,SetSize);
 switch popup_sel_index
@@ -110,7 +114,7 @@ switch popup_sel_index
     case SELECTION_SORT
         SelectionSort(list,true,handles.axes1);
     case BUBBLE_SORT
-        BubbleSort(list, true, handles.axes1);
+        BubbleSort(list,true,handles.axes1);
     case MERGE_SORT
         MergeSort(list,true,handles.axes1);
     case QUICKSORT
@@ -124,7 +128,7 @@ switch popup_sel_index
     case QUICKSORT_MEX
         QuicksortMEX(list,true,handles.axes1);
 end
-
+handles.PLOTTING = false;
 
 % --------------------------------------------------------------------
 function FileMenu_Callback(hObject, eventdata, handles)
