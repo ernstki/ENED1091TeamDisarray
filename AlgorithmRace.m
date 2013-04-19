@@ -542,7 +542,15 @@ function btnGo_Callback(hObject, eventdata, handles)
 % hObject    handle to btnGo (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+    if handles.PLOTTING
+        return % don't try to start another plot if we're already plotting
+    end % if
+    
+    % FIXME: This doesn't work. Investigate.
+    % doForAllAxes(@(ah) cla(ah));  % an anonymous function to clear axes
+    cla(handles.axAlg1);
+    cla(handles.axAlg2);
+    cla(handles.axAlg3);
     doPlots();
 
 % === END OF function btnGo_Callback()
@@ -588,6 +596,12 @@ function btnClearAxes_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %assert(false);
+
+% Don't mess with stuff if we're currently plotting:
+if handles.PLOTTING
+    return
+end % if
+
 for ah = { handles.axAlg1, handles.axAlg2, handles.axAlg3 }
     ah = ah{1}; %#ok<FXSET> % some cell array weirdness
     assert(ishandle(ah));
@@ -628,7 +642,7 @@ function mnuAxesContextMenu_Callback(hObject, eventdata, handles)
     ah = handles.axAlg1; %just control the upper-left axes
     assert(ishandle(ah));
     if DEBUGGING; disp([ 'mnuAxesContextMenu_Callback: ah = ', ...
-                        get(ah, 'Tag') ]); end
+                         get(ah, 'Tag') ]); end
     menupos = get(hObject, 'Position'); % basically the same as 'Value'
     switch menupos
         case { INSERTION_SORT, SELECTION_SORT, BUBBLE_SORT, MERGE_SORT, ...
@@ -650,17 +664,36 @@ function mnuAxesContextMenu_Callback(hObject, eventdata, handles)
 %                    H E L P E R   F U N C T I O N S            
 % ============================================================================
 
+% !!! FIXME: THIS BASICALLY NEVER SEEMS TO WORK. INVESTIGATE.
 % === DO SOME FUNCTION FOR ALL AXES
 % --- Execute 'func' for each set of axes on the figure (used to clear axes)
 function [run_time] = doForAllAxes(func) %, handles)
 % AlgorithmRace.m - doForAllAxes
 %                   perform a function (passed as a function handle) on all
 %                   axes found in the second argument, 'handles'.
+    global DEBUGGING;
+    
+    assert(isa(func, 'function_handle')); % make sure we got a good function
     ax_handles = findobj('-regexp', 'Tag', '^axAlg');
+    % for only iterates over "column vectors" (which looks like a "row vector"
+    % to me, or an "array"), so do a transpose before iterating here:
+    ax_handles = ax_handles'; % from up-and-down vector to side-to-side vector
+    if DEBUGGING
+        disp('Entered doForAllAxes().');
+        %fprintf('Length of ax_handles is %i', numel(ax_handles));
+        %disp(ax_handles);
+    end % if DEBUGGING
         
     tic;
     for ah = ax_handles
-        func(ah{1});  % comes in as cells -- weird.
+        assert(ishandle(ah));
+        % func(ah{1});  % sometimes this comes in as cells, not here. Weird.
+        %axes(ah);
+        if DEBUGGING
+            fprintf('Calling %s on axes handle #%0.1f (Tag: %s)\n', ...
+                    func2str(func), ah, get(ah, 'Tag'));
+        end % if DEBUGGING
+        func(ah);
     end
     run_time = toc;
     
@@ -744,7 +777,27 @@ function setAxesAlgorithm(ah, alg) %#ok<*DEFNU>
         otherwise
             % There's an error
             disp('Shouldn''t get here! Check setAxesAlgorithms().');
+            assert(false);
     end % switch
+
+% === FORCE UPDATE AXES 'UserData' WITH THE ALGORITHM TO BE PLOTTED
+% --- The axes' 'UserData' (where the value representing which algorithm to
+%     plot on those axes is stored) seems to get cleared after every
+%     invocation--for no obvious reason. Write them back out here:
+function forceUpdateAllAxesUserData()
+    handles = guidata(gcf);
+    setAxesAlgorithm(handles.axAlg1, get(handles.popAlg1, 'Value'));
+    setAxesAlgorithm(handles.axAlg2, get(handles.popAlg2, 'Value'));
+    setAxesAlgorithm(handles.axAlg3, get(handles.popAlg3, 'Value'));
+%     for ah = { handles.axAlg1, handles.axAlg2, handles.axAlg3 }
+%         % Weirdness: each one seems to get passed in /as/ a cell, need to
+%         % unwrap with {1}:
+%         assert(ishandle(ah{1}));
+%         setAxesAlgorithm(ah{1}, get(ah{1}, 'Value'));
+%     end % for
+
+% == end function forceUpdateAllAxesUserData()
+
     
 % === UPDATE CONTEXT MENU CHECK MARKS
 % --- Updates the check marks on the context menu passed in as the first
@@ -811,6 +864,10 @@ function doPlots()
     guidata(gcf, handles);  % signal to other controls that we're done
     switchCancelCloseButton('close');
 
+    % Force update all axes' UserData (seems to get overwritten after each
+    % time the axes is plotted on):
+    forceUpdateAllAxesUserData();
+    
 % === end plotAxes
 
 
@@ -832,11 +889,8 @@ function doPlotsSequential(ax_handles)
     input         = input_types{ handles.INPUT_CHARACTERISTICS };
     %assert(handles.INPUT_CHARACTERISTICS == INPUT_RANDOM);  % fixed
     
+    %assert(numel(
     for ah = ax_handles % for each set of axes in ax_handles
-        handles = guidata(gcf); %refresh the guidata in case something changed
-        if handles.STOP_PLOTTING
-            return
-        end %if
         % A function handle to the sort algorithm [1-10] to be used, which is
         % stored in the axes' 'UserData' (not sure why I did it this way):
         ah = ah{1}; %#ok<FXSET> % because the items come back as cells!
@@ -861,6 +915,7 @@ function doPlotsSequential(ax_handles)
         % Run INPUT_MIN:INPUT_FSTEP:<the value of sliInputSize> iterations
         tic;                            % start timing (total run time)
         for s = set_size % for each set size in 'set_size':
+            handles = guidata(gcf); %refresh the guidata in case something changed
             if handles.STOP_PLOTTING
                 return
             end %if

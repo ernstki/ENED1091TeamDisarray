@@ -12,9 +12,9 @@ function [list] = ListAlreadySorted(size, varargin)
     if nargin > 1
         switch varargin{1}
             case { 'ascend', 'descend' } % either one matches
-                order = varargin{1}
+                order = varargin{1};
             otherwise
-                order = 'ascend'
+                order = 'ascend';
         end % switch
         list = sort(randi(size, 1, size), order);
     end
