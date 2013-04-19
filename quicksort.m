@@ -1,4 +1,4 @@
-function [ the_list ] = quicksort( the_list )
+function [ the_list ] = Quicksort( the_list, varargin )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
  
@@ -9,7 +9,7 @@ pivot = median(pivotselect);
 %pivot_store = pivot;
 
 while sum(the_list==pivot)>1
-    pivot=randsample(the_list,1)
+    pivot=randsample(the_list,1);
 end
 
 partition=1;
@@ -58,6 +58,6 @@ end %while
 %       else append 'x' to 'greater'
 %  return concatenate(quicksort('less'), 'pivot', quicksort('greater')) // two recursive calls
 
-end %function [ the_list ] = quicksort( the_list )
+end %function [ the_list ] = Quicksort( the_list )
 
 

@@ -8,6 +8,7 @@ function [] = AlgoPlot(the_list, varargin)
 % Switched to using a variable 'stop_plotting' in the global 'handles'
 % structure instead. Both work equally well.
 %global STOP_PLOTTING BAR_OR_SCATTER;
+BAR_WIDTH = 0.5;
 
 handles = guidata(gcf);
 %if STOP_PLOTTING
@@ -33,7 +34,7 @@ end % three arguments
 % Otherwise, just create a new figure (useful for testing)
 switch handles.BAR_OR_SCATTER 
     case 'bar'
-        bar(t, the_list) %plots
+        bar(the_list, BAR_WIDTH) %plots
     otherwise % 'scatter' or anything else:
         scatter(t, the_list) %plots
 end %switch
