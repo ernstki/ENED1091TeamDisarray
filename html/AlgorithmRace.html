@@ -1,0 +1,2057 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>AlgorithmRace</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-04-19"><meta name="DC.source" content="AlgorithmRace.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> varargout = AlgorithmRace(varargin)
+<span class="comment">% ALGORITHM-RACE AlgorithmRace.fig</span>
+<span class="comment">%      Created by Team Disarray for the 13SS_ENED1091 final group projec</span>
+<span class="comment">%</span>
+<span class="comment">%      lays a graphical interface for comparing the run time of various</span>
+<span class="comment">%      sort algorithms on different input sizes, and input having different</span>
+<span class="comment">%      characteristics (sorted, few unique, etc.)</span>
+<span class="comment">%</span>
+<span class="comment">% See also: AlgorithmExplore.fig</span>
+
+<span class="keyword">global</span> DEBUGGING
+DEBUGGING = true;
+
+<span class="comment">% Last Modified by GUIDE v2.5 19-Apr-2013 02:28:36</span>
+
+<span class="comment">% Popup  and context menu item constants (these must be "declared" in every</span>
+<span class="comment">% function they'll be referenced from!):</span>
+<span class="keyword">global</span> SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT <span class="keyword">...</span>
+       QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX CLEAR_AXES;
+SELECT_ALG     = 1;  <span class="comment">% top popup menu option</span>
+INSERTION_SORT = 2;  <span class="comment">% Insertion Sort                   (done)</span>
+SELECTION_SORT = 3;  <span class="comment">% Selection Sort                   (done)</span>
+BUBBLE_SORT    = 4;  <span class="comment">% Bubble Sort                      (done)</span>
+MERGE_SORT     = 5;  <span class="comment">% Merge Sort                       (recursive done)</span>
+QUICKSORT      = 6;  <span class="comment">% Quicksort</span>
+QUICKSORT_3    = 7;  <span class="comment">% Quicksort (3-way partition)</span>
+RADIX_SORT     = 8;  <span class="comment">% Radix sort</span>
+TREE_SORT      = 9;  <span class="comment">% Tree sort</span>
+QUICKSORT_MEX  = 10; <span class="comment">% Quicksort (compiled C program)</span>
+CLEAR_AXES     = 11; <span class="comment">% clear the current axes</span>
+
+<span class="comment">% Global constants for the input set size:</span>
+<span class="keyword">global</span> INPUT_MIN INPUT_MAX INPUT_DEFAULT INPUT_FSTEP INPUT_CSTEP;
+<span class="comment">%VALUE_MAX      = 100;  % largest value;</span>
+INPUT_MIN      = 10; <span class="comment">% minimum input set</span>
+INPUT_MAX      = 1000; <span class="comment">%</span>
+INPUT_DEFAULT  = 50; <span class="comment">%</span>
+<span class="comment">% The "fine" and "coarse" step size for the "Max Input Size" selector.</span>
+<span class="comment">%INPUT_FSTEP     = (INPUT_MAX-INPUT_MIN) / 20 - mod(INPUT_MAX-INPUT_MIN, 20)</span>
+<span class="comment">%INPUT_CSTEP     = floor((INPUT_MAX-INPUT_MIN) / 5); %coarse step</span>
+INPUT_FSTEP     = INPUT_MIN;
+INPUT_CSTEP     = floor(INPUT_MAX / 5);
+
+<span class="comment">% The sort "input characteristics" set by the radio buttons:</span>
+<span class="keyword">global</span> INPUT_RANDOM INPUT_SORTED_ASC INPUT_SORTED_DESC INPUT_FEW_UNIQUE; <span class="comment">% ...</span>
+       <span class="comment">%DEFAULT_INPUT_TYPE;</span>
+INPUT_RANDOM       = 1;
+INPUT_SORTED_ASC   = 2;
+INPUT_SORTED_DESC  = 3;
+INPUT_FEW_UNIQUE   = 4;
+<span class="comment">%DEFAULT_INPUT_TYPE = INPUT_RANDOM;</span>
+
+<span class="comment">% Begin initialization code - DO NOT EDIT</span>
+gui_Singleton = 1;
+gui_State = struct(<span class="string">'gui_Name'</span>,       mfilename, <span class="keyword">...</span>
+                   <span class="string">'gui_Singleton'</span>,  gui_Singleton, <span class="keyword">...</span>
+                   <span class="string">'gui_OpeningFcn'</span>, @AlgorithmRace_OpeningFcn, <span class="keyword">...</span>
+                   <span class="string">'gui_OutputFcn'</span>,  @AlgorithmRace_OutputFcn, <span class="keyword">...</span>
+                   <span class="string">'gui_LayoutFcn'</span>,  [] , <span class="keyword">...</span>
+                   <span class="string">'gui_Callback'</span>,   []);
+<span class="keyword">if</span> nargin &amp;&amp; ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+<span class="keyword">else</span>
+    gui_mainfcn(gui_State, varargin{:});
+<span class="keyword">end</span>
+<span class="comment">% End initialization code - DO NOT EDIT</span>
+
+<span class="comment">% --- Executes just before AlgorithmRace is made visible.</span>
+<span class="keyword">function</span> AlgorithmRace_OpeningFcn(hObject, eventdata, handles, varargin) <span class="comment">%#ok&lt;*INUSL,*INUSL&gt;</span>
+<span class="comment">% This function has no output args, see OutputFcn.</span>
+<span class="comment">% hObject    handle to figure</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+<span class="comment">% varargin   command line arguments to AlgorithmRace (see VARARGIN)</span>
+<span class="keyword">global</span> INSERTION_SORT SELECTION_SORT BUBBLE_SORT INPUT_RANDOM;
+
+<span class="comment">% Updated this to use a 'STOP_PLOTTING' flag in the global 'handles'</span>
+<span class="comment">% structure intead. But both work equally well.</span>
+<span class="comment">%global STOP_PLOTTING;</span>
+<span class="comment">% Choose default command line output for AlgorithmRace</span>
+handles.output = hObject;
+
+<span class="comment">% ----------------------------------------------------------------------------</span>
+<span class="comment">%             G L O B A L   S E T T I N G S   /   D E F A U L T S</span>
+<span class="comment">% ----------------------------------------------------------------------------</span>
+
+<span class="comment">% If set to 'true', this will cause all of the input set sizes from INPUT_MIN</span>
+<span class="comment">% to the sliInputSize by INPUT_FSTEP for ONE algorithm, then plot the next</span>
+<span class="comment">% one.</span>
+handles.SEQUENTIAL_PLOTS      = true;
+<span class="comment">% When SEQUENTIAL_PLOTS is true, also plot iterations on the same set of</span>
+<span class="comment">% axes.</span>
+handles.SHOW_ITER_PLOTS       = true;
+handles.STOP_PLOTTING         = false;     <span class="comment">% signal from some control to stop</span>
+handles.PLOTTING              = false;     <span class="comment">% are we currently plotting?</span>
+handles.BAR_OR_SCATTER        = <span class="string">'bar'</span>;          <span class="comment">% Default to bar charts</span>
+
+<span class="comment">% Give all axes/popups default algorithms on startup</span>
+<span class="comment">%set(handles.popAlg1, 'Value', INSERTION_SORT);  % default for 1st set of axes</span>
+setAxesAlgorithm(handles.axAlg1, INSERTION_SORT);
+setAxesAlgorithm(handles.axAlg2, SELECTION_SORT);
+setAxesAlgorithm(handles.axAlg3, BUBBLE_SORT);
+
+<span class="comment">% Update handles structure</span>
+guidata(hObject, handles);
+setInputCharacteristics(INPUT_RANDOM);<span class="comment">%, handles); % Default to INPUT_RANDOM</span>
+
+<span class="comment">% This sets up the initial plot - only do when we are invisible</span>
+<span class="comment">% so window can get raised using AlgorithmRace.</span>
+<span class="comment">%if strcmp(get(hObject,'Visible'),'off')</span>
+    <span class="comment">%plot(rand(5));</span>
+<span class="comment">%end</span>
+
+<span class="comment">% UIWAIT makes AlgorithmRace wait for user response (see UIRESUME)</span>
+<span class="comment">% uiwait(handles.figure1);</span>
+
+
+<span class="comment">% --- Outputs from this function are returned to the command line.</span>
+<span class="keyword">function</span> varargout = AlgorithmRace_OutputFcn(hObject, eventdata, handles) <span class="comment">%#ok&lt;*INUSL&gt;</span>
+<span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+<span class="comment">% hObject    handle to figure</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% Get default command line output from handles structure</span>
+varargout{1} = handles.output;
+
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="comment">%function FileMenu_Callback(hObject, eventdata, handles)</span>
+<span class="comment">% hObject    handle to FileMenu (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> OpenMenuItem_Callback(hObject, eventdata, handles) <span class="comment">%#ok&lt;*INUSD,*INUSD&gt;</span>
+<span class="comment">% hObject    handle to OpenMenuItem (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+file = uigetfile(<span class="string">'*.fig'</span>);
+<span class="keyword">if</span> ~isequal(file, 0)
+    open(file);
+<span class="keyword">end</span>
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> PrintMenuItem_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to PrintMenuItem (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+printdlg(handles.figure1)
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> CloseMenuItem_Callback(hObject, eventdata, handles) <span class="comment">%#ok&lt;*DEFNU&gt;</span>
+<span class="comment">% hObject    handle to CloseMenuItem (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+selection = questdlg([<span class="string">'Close '</span> get(handles.figure1,<span class="string">'Name'</span>) <span class="string">'?'</span>],<span class="keyword">...</span>
+                     [<span class="string">'Close '</span> get(handles.figure1,<span class="string">'Name'</span>) <span class="string">'...'</span>],<span class="keyword">...</span>
+                     <span class="string">'Yes'</span>,<span class="string">'No'</span>,<span class="string">'Yes'</span>);
+<span class="keyword">if</span> strcmp(selection,<span class="string">'No'</span>)
+    <span class="keyword">return</span>;
+<span class="keyword">end</span>
+
+delete(handles.figure1)
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> axLogo_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to axLogo (see GCBO)</span>
+    img = imread(<span class="string">'Matlab_Logo_small.png'</span>, <span class="string">'BackgroundColor'</span>, [0.5,0.5,0.5]);
+    axes(hObject);
+    <span class="comment">% See: http://www.peteryu.ca/tutorials/matlab/plot_over_image_background</span>
+    <span class="comment">%imagesc([100, 400], [100, 400], flipdim(img,1));</span>
+    <span class="comment">%set(gca, 'Visible', 'off');</span>
+    <span class="comment">%set(gca, 'ydir', 'normal');</span>
+    h = imshow(img);
+    set(h, <span class="string">'Parent'</span>, hObject);
+
+
+<span class="comment">% ============================================================================</span>
+<span class="comment">%            A L G O R I T H M   D R O P - D O W N   S E L E C T O R S</span>
+<span class="comment">% ============================================================================</span>
+
+<span class="comment">% === CONTENDER #1 CREATE</span>
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> popAlgSelector_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popAlg1 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+    set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% For some reason, this can't be put in the CreatFcn, maybe because the</span>
+<span class="comment">% control hasn't been filled with values yet. Moved to</span>
+<span class="comment">% AlgorithmRace_OpeningFcn instead.</span>
+<span class="comment">% % Set popAlg1 to default to the second item (insertion sort)</span>
+<span class="comment">% if strcmp(get(hObject, 'Tag'), 'popAlg1')</span>
+<span class="comment">%     disp('Initialize first popup (popAlg1) to default to insertion sort.');</span>
+<span class="comment">%     %*** disp(get(hObject, 'Tag'));</span>
+<span class="comment">%     set(hObject, 'Value', 1);</span>
+<span class="comment">%     drawnow expose update;</span>
+<span class="comment">% end</span>
+
+<span class="comment">% === AXES POPUP MENU (ALGORITHM CHOICE) CALLBACK</span>
+<span class="comment">% --- Executes on selection change in popAlg1, popAlg2, and popAlg3</span>
+<span class="keyword">function</span> popAlgSelector_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popAlg1 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns popAlg1 contents as cell array</span>
+<span class="comment">%        contents{get(hObject,'Value')} returns selected item from popAlg1</span>
+<span class="comment">% global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...</span>
+<span class="comment">%        RADIX_SORT TREE_SORT QUICKSORT_MEX; %#ok&lt;*NUSED&gt;</span>
+
+<span class="comment">% Find the axes in the parent object and get a handle to them:</span>
+ph = get(hObject, <span class="string">'Parent'</span>);
+ah = findobj(ph, <span class="string">'Type'</span>, <span class="string">'axes'</span>);
+<span class="comment">% This function sets the chosen algorithm in the 'UserData' of the axes</span>
+<span class="comment">% themselves.</span>
+setAxesAlgorithm(ah, get(hObject, <span class="string">'Value'</span>));
+
+
+
+
+
+
+<span class="comment">% ============================================================================</span>
+<span class="comment">%              "M A X   I N P U T   S I Z E"   C O N T R O L S</span>
+<span class="comment">% ============================================================================</span>
+
+<span class="comment">% === THE "MAX INPUT SIZE" SLIDER CONTROL</span>
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> sliInputSize_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to sliInputSize (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: slider controls usually have a light gray background.</span>
+    <span class="keyword">global</span> INPUT_MIN INPUT_MAX INPUT_DEFAULT INPUT_FSTEP INPUT_CSTEP
+    <span class="keyword">if</span> isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+        set(hObject,<span class="string">'BackgroundColor'</span>,[.9 .9 .9]);
+    <span class="keyword">end</span>
+
+    set(hObject, <span class="string">'Value'</span>, INPUT_DEFAULT);
+    set(hObject, <span class="string">'Min'</span>, INPUT_MIN);
+    set(hObject, <span class="string">'Max'</span>, INPUT_MAX);
+    <span class="comment">%set(hObject, 'SliderStep', [INPUT_FSTEP, INPUT_CSTEP]);</span>
+
+<span class="comment">% --- Executes on slider movement.</span>
+<span class="keyword">function</span> sliInputSize_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to sliInputSize (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% Hints: get(hObject,'Value') returns position of slider</span>
+<span class="comment">%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider</span>
+    <span class="keyword">global</span> INPUT_MIN INPUT_FSTEP
+    N = get(handles.sliInputSize, <span class="string">'Value'</span>);    <span class="comment">% Get the new slider value</span>
+    N = N - mod(N, INPUT_FSTEP);               <span class="comment">% round to nearest (fine) step</span>
+    <span class="keyword">if</span> N &lt; INPUT_MIN                           <span class="comment">% don't go lower than INPUT_MIN</span>
+        N = INPUT_MIN;
+    <span class="keyword">end</span>
+    set(handles.edtInputSize, <span class="string">'String'</span>, N);
+
+
+<span class="comment">% === THE "INPUT SIZE" TEXT BOX CONTROL</span>
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> edtInputSize_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edtInputSize (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+    <span class="keyword">global</span> INPUT_DEFAULT
+    <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+        set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+    <span class="keyword">end</span>
+    set(hObject, <span class="string">'String'</span>, INPUT_DEFAULT);
+
+
+<span class="keyword">function</span> edtInputSize_Callback(hObject, eventdata, handles) <span class="comment">%#ok&lt;*INUSL&gt;</span>
+<span class="comment">% hObject    handle to edtInputSize (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% Hints: get(hObject,'String') returns contents of edtInputSize as text</span>
+<span class="comment">%        str2double(get(hObject,'String')) returns contents of edtInputSize as a double</span>
+
+    <span class="keyword">global</span> INPUT_MIN INPUT_MAX INPUT_CSTEP
+
+    <span class="comment">% Check to see that the value given is between INPUT_MIN and INPUT_MAX:</span>
+    input_size = get(hObject, <span class="string">'String'</span>);
+    <span class="keyword">if</span> input_size &lt; INPUT_MIN || input_size &gt; INPUT_MAX
+        <span class="comment">% Restore previous value from 'UserData'</span>
+        set(hObject, <span class="string">'String'</span>, get(hObject, <span class="string">'UserData'</span>));
+        set(hObject, <span class="string">'Color'</span>, [0.6, 0.1, 0]); <span class="comment">% a nice red color</span>
+    <span class="keyword">else</span>
+        <span class="comment">% Round input size to the nearest (coarse) step:</span>
+        input_size = input_size - mod(input_size, INPUT_CSTEP);
+        set(handles.sliInputSize, <span class="string">'Value'</span>, input_size)
+        set(hObject, <span class="string">'UserData'</span>, input_size);
+        set(hObject, <span class="string">'Color'</span>, [0.25, 0.25, 0.25]); <span class="comment">% back to default</span>
+    <span class="keyword">end</span> <span class="comment">% if input_size ...</span>
+
+
+<span class="comment">% ============================================================================</span>
+<span class="comment">%            R A D I O   B U T T O N S   &amp;    C H E C K B O X E S</span>
+<span class="comment">% ============================================================================</span>
+<span class="comment">% The order on the figure is:</span>
+<span class="comment">% [ ] Random</span>
+<span class="comment">% [ ] Already Sorted (A)scending</span>
+<span class="comment">% [ ] Already Sorted (D)escending</span>
+<span class="comment">% [ ] Few unique</span>
+
+<span class="comment">% === RANDOM</span>
+<span class="comment">% === ALREADY SORTED (ASCENDING)</span>
+<span class="comment">% === ALREADY SORTED (DESCENDING)</span>
+<span class="comment">% === FEW UNIQUE (MANY DUPLICATES)</span>
+<span class="keyword">function</span> rdoInputCharacteristics_Callback(hObject, eventdata, guidata)
+    <span class="keyword">global</span> DEBUGGING;
+
+    <span class="keyword">switch</span> get(hObject, <span class="string">'Tag'</span>)
+        <span class="keyword">case</span> <span class="string">'rdoRandom'</span>
+            setInputCharacteristics(INPUT_RANDOM);
+            <span class="keyword">if</span> DEBUGGING
+                disp(<span class="string">'Reached rdoRandom.'</span>);
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_RANDOM);
+            <span class="keyword">end</span> <span class="comment">% if DEBUGGING</span>
+        <span class="keyword">case</span> <span class="string">'rdoSortedAsc'</span>
+            setInputCharacteristics(INPUT_SORTED_ASC);
+            <span class="keyword">if</span> DEBUGGING
+                disp(<span class="string">'Reached rdoSortedAsc.'</span>);
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_SORTED_ASC);
+            <span class="keyword">end</span> <span class="comment">% if DEBUGGING</span>
+        <span class="keyword">case</span> <span class="string">'rdoSortedDesc'</span>
+            setInputCharacteristics(INPUT_SORTED_DESC);
+            <span class="keyword">if</span> DEBUGGING
+                disp(<span class="string">'Reached rdoSortedDesc.'</span>);
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_SORTED_DESC);
+            <span class="keyword">end</span> <span class="comment">% if DEBUGGING</span>
+        <span class="keyword">case</span> <span class="string">'rdoFewUnique'</span>
+            setInputCharacteristics(INPUT_FEW_UNIQUE);
+            <span class="keyword">if</span> DEBUGGING
+                disp(<span class="string">'Reached rdoFewUnique.'</span>);
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_FEW_UNIQUE);
+            <span class="keyword">end</span> <span class="comment">% if DEBUGGING</span>
+        <span class="keyword">otherwise</span>
+            assert(false);
+    <span class="keyword">end</span> <span class="comment">% switch/case</span>
+
+<span class="comment">% === end function rdoInputCharacteristics_Callback</span>
+
+
+
+<span class="comment">% === "INPUT CHARACTERISTICS" CREATE FUNCTION</span>
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> bgInputCharacteristics_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to bgInputCharacteristics (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+    <span class="comment">% See: http://www.mathworks.com/support/solutions/en/data/1-179FO3/</span>
+    <span class="comment">%set(hObject, 'SelectionChangeFcn', );</span>
+
+    <span class="comment">% Sample Callback:</span>
+    <span class="comment">% AlgorithmRace('popAlgSelector_Callback',hObject,eventdata,guidata(hObject))</span>
+    <span class="comment">% What this callback looks like:</span>
+    <span class="comment">% @(hObject,eventdata)AlgorithmRace('bgInputCharacteristics_SelectionChangeFcn',</span>
+    <span class="comment">% get(hObject,'SelectedObject'),eventdata,guidata(get(hObject,'SelectedObject')))</span>
+
+
+<span class="comment">% !!! MATLAB NEVER RUNS THIS CALLBACK !!!</span>
+<span class="comment">% === "INPUT CHARACTERISTICS" CALLBACK FUNCTION</span>
+<span class="comment">% --- Executes for all radio buttons in the "Input Characteristics" group</span>
+<span class="keyword">function</span> bgInputCharacteristics_SelectionChangeFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to the selected object in bgPlotSequence</span>
+<span class="comment">% eventdata  structure with the following fields (see UIBUTTONGROUP)</span>
+<span class="comment">%	EventName: string 'SelectionChanged' (read only)</span>
+<span class="comment">%	OldValue: handle of the previously selected object or empty if none was selected</span>
+<span class="comment">%	NewValue: handle of the currently selected object</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+    assert(false); <span class="comment">% do we ever get here?</span>
+    <span class="keyword">global</span> INPUT_RANDOM INPUT_SORTED_ASC INPUT_SORTED_DESC <span class="keyword">...</span>
+           INPUT_FEW_UNIQUE;  <span class="comment">%#ok&lt;*NUSED&gt;</span>
+
+    <span class="comment">% See: http://www.mathworks.com/help/releases/R2012a/techdoc/</span>
+    <span class="comment">%             creating_guis/f10-998412.html#f10-1001438</span>
+    <span class="keyword">switch</span> get(eventdata.NewValue,<span class="string">'Tag'</span>)
+        <span class="keyword">case</span> <span class="string">'rdoRandom'</span>
+            setInputCharacteristics(INPUT_RANDOM);
+            <span class="keyword">if</span> DEBUGGING
+                disp(<span class="string">'Reached rdoRandom.'</span>);
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_RANDOM);
+            <span class="keyword">end</span> <span class="comment">% if DEBUGGING</span>
+        <span class="keyword">case</span> <span class="string">'rdoSortedAsc'</span>
+            setInputCharacteristics(INPUT_SORTED_ASC);
+            <span class="keyword">if</span> DEBUGGING
+                disp(<span class="string">'Reached rdoSortedAsc.'</span>);
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_SORTED_ASC);
+            <span class="keyword">end</span> <span class="comment">% if DEBUGGING</span>
+        <span class="keyword">case</span> <span class="string">'rdoSortedDesc'</span>
+            setInputCharacteristics(INPUT_SORTED_DESC);
+            <span class="keyword">if</span> DEBUGGING
+                disp(<span class="string">'Reached rdoSortedDesc.'</span>);
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_SORTED_DESC);
+            <span class="keyword">end</span> <span class="comment">% if DEBUGGING</span>
+        <span class="keyword">case</span> <span class="string">'rdoFewUnique'</span>
+            setInputCharacteristics(INPUT_FEW_UNIQUE);
+            <span class="keyword">if</span> DEBUGGING
+                disp(<span class="string">'Reached rdoFewUnique.'</span>);
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_FEW_UNIQUE);
+            <span class="keyword">end</span> <span class="comment">% if DEBUGGING</span>
+        <span class="keyword">otherwise</span>
+            assert(false);
+    <span class="keyword">end</span> <span class="comment">% switch/case</span>
+
+<span class="comment">% === end function bgInputCharacteristics_SelectionChangeFcn</span>
+
+
+<span class="comment">% --- Executes when selected object is changed in bgPlotSequence.</span>
+<span class="keyword">function</span> bgPlotSequence_SelectionChangeFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to the selected object in bgPlotSequence</span>
+<span class="comment">% eventdata  structure with the following fields (see UIBUTTONGROUP)</span>
+<span class="comment">%	EventName: string 'SelectionChanged' (read only)</span>
+<span class="comment">%	OldValue: handle of the previously selected object or empty if none was selected</span>
+<span class="comment">%	NewValue: handle of the currently selected object</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+    <span class="keyword">global</span> DEBUGGING;
+    cbh = handles.cbPlotIterations;
+    <span class="keyword">switch</span> get(eventdata.NewValue,<span class="string">'Tag'</span>)
+        <span class="keyword">case</span> <span class="string">'rdoSequentialPlots'</span>
+            <span class="keyword">if</span> DEBUGGING; disp(<span class="string">'Sequential plotting ENABLED.'</span>); <span class="keyword">end</span>;
+            handles.SEQUENTIAL_PLOTS = true;
+
+            <span class="comment">% Re-enable the checkbox (but do not check or sync global flag;</span>
+            <span class="comment">% this will be done in the doSequentialPlot function):</span>
+            set(cbh, <span class="string">'Enable'</span>, <span class="string">'on'</span>);  <span class="comment">% re-enable the checkbox</span>
+            <span class="keyword">if</span> DEBUGGING: disp(<span class="string">'Plotting of iterations FREED.'</span>); <span class="keyword">end</span>;
+
+            <span class="comment">%if get(cbh, 'Value') == get(cbh, 'Max') % if it's checked</span>
+            <span class="comment">%    handles.SHOW_ITER_PLOTS = true;</span>
+            <span class="comment">%end %if</span>
+        <span class="keyword">case</span> <span class="string">'rdoInterleavedPlots'</span>
+            handles.SEQUENTIAL_PLOTS = false;
+            <span class="keyword">if</span> DEBUGGING; disp(<span class="string">'Sequential plotting disabled.'</span>); <span class="keyword">end</span>;
+
+            <span class="comment">% Uncheck and disable 'Plot iterations' &amp; update the global flag:</span>
+            set(cbh, <span class="string">'Value'</span>, get(cbh, <span class="string">'Min'</span>)); <span class="comment">% uncheck it</span>
+            set(cbh, <span class="string">'Enable'</span>, <span class="string">'off'</span>);          <span class="comment">% disable it (grey it out)</span>
+            handles.SHOW_ITER_PLOTS = false;    <span class="comment">% unset the global in handles</span>
+            <span class="keyword">if</span> DEBUGGING; disp(<span class="string">'Plotting of iterations blocked.'</span>); <span class="keyword">end</span>;
+        <span class="keyword">otherwise</span>
+            assert(false);
+    <span class="keyword">end</span> <span class="comment">% switch / case</span>
+    <span class="comment">% Don't forget to update guihandles:</span>
+    guidata(hObject, handles);
+
+<span class="comment">% === end function bgPlotSequence_SelectionChangeFcn()</span>
+
+
+<span class="comment">% === CALLBACK FOR 'PLOT ITERATIONS' CHECKBOX</span>
+<span class="comment">% --- Executes on button press in cbPlotIterations.</span>
+<span class="keyword">function</span> cbPlotIterations_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to cbPlotIterations (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% Hint: get(hObject,'Value') returns toggle state of cbPlotIterations</span>
+    <span class="keyword">global</span> DEBUGGING;
+
+    <span class="comment">%assert(false); % do we ever get here?</span>
+    <span class="keyword">if</span> get(hObject, <span class="string">'Value'</span>) == get(hObject, <span class="string">'Min'</span>) <span class="comment">%unchecked</span>
+        <span class="keyword">if</span> DEBUGGING; disp(<span class="string">'Plotting of iterations disabled.'</span>); <span class="keyword">end</span>;
+        handles.SHOW_ITER_PLOTS = false;
+    <span class="keyword">else</span> <span class="comment">% checked (1 or some other value)</span>
+        <span class="keyword">if</span> DEBUGGING; disp(<span class="string">'Plotting of iterations enabled.'</span>); <span class="keyword">end</span>;
+        handles.SHOW_ITER_PLOTS = true;
+    <span class="keyword">end</span>
+    <span class="comment">% don't forget to update the guidata structure for everyone else:</span>
+    guidata(hObject, handles);
+
+<span class="comment">% === end function cbPlotIterations_Callback</span>
+
+
+<span class="comment">% ============================================================================</span>
+<span class="comment">%            A X E S  /  P A N E L   C R E A T E   F U N C T I O N S</span>
+<span class="comment">% ============================================================================</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> axAlgX_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to axAlg1 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+    <span class="comment">% Hint: place code in OpeningFcn to populate axAlg1</span>
+    <span class="comment">% Set 'haxAlgN' to the handle to the axes</span>
+    <span class="comment">%setappdata(gcf, 'haxAlg1', hObject);</span>
+
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> pnlAlgX_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to pnlAlg1 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Remember the initial value of Title in 'UserData'</span>
+set(hObject, <span class="string">'UserData'</span>, get(hObject, <span class="string">'Title'</span>));
+
+<span class="comment">% ============================================================================</span>
+<span class="comment">%                             B U T T O N S</span>
+<span class="comment">% ============================================================================</span>
+
+<span class="comment">% === THE "GO" BUTTON</span>
+<span class="comment">% --- Executes on button press in btnGo.</span>
+<span class="keyword">function</span> btnGo_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to btnGo (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+    h = findobj(get(hObject, <span class="string">'Parent'</span>), <span class="string">'Tag'</span>, <span class="string">'bgInputCharacteristics'</span>);
+    disp(get(h, <span class="string">'SelectionChangeFcn'</span>));
+    <span class="keyword">return</span>;
+    doPlots(handles);
+
+<span class="comment">% === END OF function btnGo_Callback()</span>
+
+
+<span class="comment">% === THE "CANCEL" BUTTON</span>
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> btnCancelClose_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to btnCancelClose (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+    set(hObject, <span class="string">'String'</span>, <span class="string">'Close'</span>);
+    handles.DEFAULT_BUTTON_BG = get(hObject, <span class="string">'BackgroundColor'</span>);
+    guidata(hObject, handles);
+
+
+<span class="comment">% --- Executes on button press in btnCancelClose.</span>
+<span class="keyword">function</span> btnCancelClose_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to btnCancelClose (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+<span class="comment">%handles.stop_plotting = true;</span>
+<span class="comment">%global STOP_PLOTTING</span>
+<span class="comment">%STOP_PLOTTING=true;</span>
+<span class="keyword">if</span> handles.PLOTTING == true
+    handles.STOP_PLOTTING = true;
+    <span class="comment">% the 'go' button callback should set PLOTTING to false when the sort</span>
+    <span class="comment">% algorithm falls through, but I'll set it here anyway in case the sort</span>
+    <span class="comment">% algorithm is interrupted/crashes:</span>
+    handles.PLOTTING = false;
+    disp(<span class="string">'User requested to stop plotting.'</span>);
+    set(hObject, <span class="string">'String'</span>, <span class="string">'Close'</span>);
+    guidata(hObject, handles); <span class="comment">% update 'handles' structure for other controls</span>
+<span class="keyword">else</span>
+    close(gcf);
+<span class="keyword">end</span> <span class="comment">%if</span>
+
+
+<span class="comment">% === THE "CLEAR AXES" BUTTON</span>
+<span class="comment">% --- Executes on button press in btnClearAxes.</span>
+<span class="keyword">function</span> btnClearAxes_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to btnClearAxes (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="keyword">for</span> ah = { handles.axAlg1, handles.axAlg2, handles.axAlg3 }
+    ah = ah{1}; <span class="comment">%#ok&lt;FXSET&gt; % some cell array weirdness</span>
+    assert(ishandle(ah));
+    cla(ah);
+<span class="keyword">end</span> <span class="comment">% for</span>
+
+
+<span class="comment">% --- If Enable == 'on', executes on mouse press in 5 pixel border.</span>
+<span class="comment">% --- Otherwise, executes on mouse press in 5 pixel border or over txtTitle.</span>
+<span class="keyword">function</span> txtTitle_ButtonDownFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to txtTitle (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+disp(<span class="string">'User clicked on the title.'</span>);
+web(<span class="string">'./Help.htm'</span>);
+
+
+<span class="comment">% ============================================================================</span>
+<span class="comment">%                                M E N U S</span>
+<span class="comment">% ============================================================================</span>
+
+<span class="comment">% ==</span>
+<span class="keyword">function</span> mnuAxesContextMenu_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to mnuClearAxes (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+<span class="comment">% TODO: This really should be merged with setAxesAlgorithm(), since they do</span>
+<span class="comment">% virtually the same thing.</span>
+    <span class="keyword">global</span> SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT <span class="keyword">...</span>
+           QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX <span class="keyword">...</span>
+           CLEAR_AXES DEBUGGING; <span class="comment">%#ok&lt;*NUSED,NUSED&gt;</span>
+
+    <span class="comment">% Get a handle to the axes within the parent object</span>
+    <span class="comment">% *** Except the "parent" for a context menu is the figure, so this</span>
+    <span class="comment">% doesn't work. Would need to create three duplicate context menus for</span>
+    <span class="comment">% each set of axes. No thanks.</span>
+    <span class="comment">%ah = get(gcbo, 'Parent'); % (should be the axes)</span>
+    ah = handles.axAlg1; <span class="comment">%just control the upper-left axes</span>
+    assert(ishandle(ah));
+    <span class="keyword">if</span> DEBUGGING; disp([ <span class="string">'mnuAxesContextMenu_Callback: ah = '</span>, <span class="keyword">...</span>
+                        get(ah, <span class="string">'Tag'</span>) ]); <span class="keyword">end</span>
+    menupos = get(hObject, <span class="string">'Position'</span>); <span class="comment">% basically the same as 'Value'</span>
+    <span class="keyword">switch</span> menupos
+        <span class="keyword">case</span> { INSERTION_SORT, SELECTION_SORT, BUBBLE_SORT, MERGE_SORT, <span class="keyword">...</span>
+               QUICKSORT, QUICKSORT_3, RADIX_SORT, TREE_SORT, QUICKSORT_MEX }
+           <span class="comment">%set(ah, 'UserData', menupos);</span>
+           setAxesAlgorithm(ah, menupos);
+           <span class="comment">% Give 'updateContextMenuChecks' the parent (container) menu</span>
+           <span class="comment">% handle and the selected item:</span>
+           updateContextMenuChecks(get(hObject, <span class="string">'Parent'</span>), menupos);
+        <span class="keyword">case</span> CLEAR_AXES
+            cla(ah);
+        <span class="keyword">otherwise</span>
+            <span class="comment">% There's an error</span>
+            disp(<span class="string">'Shouldn''t get here! Check setAxesAlgorithms().'</span>);
+    <span class="keyword">end</span> <span class="comment">% switch</span>
+
+
+<span class="comment">% ============================================================================</span>
+<span class="comment">%                    H E L P E R   F U N C T I O N S</span>
+<span class="comment">% ============================================================================</span>
+
+<span class="comment">% === DO SOME FUNCTION FOR ALL AXES</span>
+<span class="comment">% --- Execute 'func' for each set of axes on the figure (used to clear axes)</span>
+<span class="keyword">function</span> [run_time] = doForAllAxes(func) <span class="comment">%, handles)</span>
+<span class="comment">% AlgorithmRace.m - doForAllAxes</span>
+<span class="comment">%                   perform a function (passed as a function handle) on all</span>
+<span class="comment">%                   axes found in the second argument, 'handles'.</span>
+    ax_handles = findobj(<span class="string">'-regexp'</span>, <span class="string">'Tag'</span>, <span class="string">'^axAlg'</span>);
+
+    tic;
+    <span class="keyword">for</span> ah = ax_handles
+        func(ah{1});  <span class="comment">% comes in as cells -- weird.</span>
+    <span class="keyword">end</span>
+    run_time = toc;
+
+<span class="comment">% XXX SET THE SORTING ALGORITHM</span>
+<span class="comment">% --- (insertion, selection, bubble, etc.) These are defined as globals</span>
+<span class="comment">%     near the top of this file.</span>
+<span class="comment">% function setSortAlgorithm(alg)</span>
+<span class="comment">%     global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...</span>
+<span class="comment">%        QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX;</span>
+<span class="comment">%</span>
+<span class="comment">%     handles.SORT_ALGORITHM = alg;</span>
+<span class="comment">%     guidata(hObject, handles); % update the handles structure</span>
+
+<span class="comment">% === UPDATE PANEL LABEL</span>
+<span class="comment">% --- Update the panel label for the given handle:</span>
+<span class="keyword">function</span> updatePanelLabel(pnlh, label_or_default)
+    assert(ishandle(pnlh));
+    default_lbl   = get(pnlh, <span class="string">'UserData'</span>);  <span class="comment">% the default label</span>
+    <span class="keyword">if</span> strcmp(label_or_default, <span class="string">'default'</span>)
+        set(pnlh, <span class="string">'Title'</span>, default_lbl);
+    <span class="keyword">else</span>
+        set(pnlh, <span class="string">'Title'</span>, [ default_lbl, label_or_default ]);
+    <span class="keyword">end</span> <span class="comment">% if</span>
+    drawnow <span class="string">expose</span>;
+<span class="comment">% === end function updatePanelLabel(panel_handle)</span>
+
+
+<span class="comment">% === FORMAT TIMES IN SECONDS --&gt; MINUTES AND SECONDS</span>
+<span class="comment">% --- Format a long run time in seconds in to a nice display in</span>
+<span class="comment">%     minutes/seconds</span>
+<span class="keyword">function</span> [ formatted_t ] = minutesAndSeconds(t)
+    <span class="keyword">if</span> t &gt; 60
+        formatted_t = sprintf(<span class="string">'%.0f m, %0.2f s'</span>, floor(t/60), mod(t/60));
+    <span class="keyword">else</span>
+        formatted_t = sprintf(<span class="string">'%0.2f s'</span>, t);  <span class="comment">% '%i' doesn't work like C.</span>
+    <span class="keyword">end</span> <span class="comment">%if</span>
+<span class="comment">% === end function minutesAndSeconds(time)</span>
+
+
+<span class="comment">% === SWITCH CANCEL/CLOSE BUTTON STATE</span>
+<span class="comment">% --- Switch the Cancel/Close button's state from 'Close' to 'Cancel' and</span>
+<span class="comment">% back.</span>
+<span class="keyword">function</span> switchCancelCloseButton(state)
+    handles = guidata(gcf);
+    <span class="keyword">if</span> strcmp(state, <span class="string">'cancel'</span>)
+        set(handles.btnCancelClose, <span class="string">'String'</span>, <span class="string">'Cancel'</span>);
+        <span class="comment">% reddish</span>
+        set(handles.btnCancelClose, <span class="string">'BackgroundColor'</span>, [1.0, 0.6, 0.6]);
+    <span class="keyword">else</span>
+        btnbg = handles.DEFAULT_BUTTON_BG;
+        set(handles.btnCancelClose, <span class="string">'String'</span>, <span class="string">'Close'</span>);
+        set(handles.btnCancelClose, <span class="string">'BackgroundColor'</span>, btnbg);
+    <span class="keyword">end</span> <span class="comment">% if state == cancel</span>
+
+<span class="comment">% === SET THE INPUT SET CHARACTERISTICS</span>
+<span class="comment">% --- (random, already sorted, etc.)</span>
+<span class="keyword">function</span> setInputCharacteristics(type)<span class="comment">%, handles)</span>
+    <span class="comment">%assert(false); % do we ever get here?</span>
+    <span class="keyword">global</span> INPUT_RANDOM INPUT_SORTED_ASC INPUT_SORTED_DESC <span class="keyword">...</span>
+           INPUT_FEW_UNIQUE;  <span class="comment">%#ok&lt;*NUSED&gt;</span>
+
+    handles = guidata(gcf);
+    handles.INPUT_CHARACTERISTICS = type;
+    guidata(gcf, handles); <span class="comment">% update the handles structure</span>
+
+
+<span class="comment">% === UPDATE SORT ALGORITHM FOR A SET OF AXES</span>
+<span class="comment">% --- Store the chosen sort algorithm in the axes' 'UserData' structure:</span>
+<span class="keyword">function</span> setAxesAlgorithm(ah, alg) <span class="comment">%#ok&lt;*DEFNU&gt;</span>
+    assert(ishandle(ah));
+    <span class="keyword">global</span> SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT <span class="keyword">...</span>
+           QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX <span class="keyword">...</span>
+           CLEAR_AXES; <span class="comment">%#ok&lt;*NUSED,NUSED&gt;</span>
+    <span class="keyword">switch</span> alg
+        <span class="keyword">case</span> { INSERTION_SORT, SELECTION_SORT, BUBBLE_SORT, MERGE_SORT, <span class="keyword">...</span>
+               QUICKSORT, QUICKSORT_3, RADIX_SORT, TREE_SORT, QUICKSORT_MEX }
+           set(ah, <span class="string">'UserData'</span>, alg);
+           ph = get(ah, <span class="string">'Parent'</span>);
+           ch = findobj(ph, <span class="string">'-regexp'</span>, <span class="string">'Tag'</span>, <span class="string">'pop'</span>);  <span class="comment">% popup control</span>
+           set(ch, <span class="string">'Value'</span>, alg);
+        <span class="keyword">otherwise</span>
+            <span class="comment">% There's an error</span>
+            disp(<span class="string">'Shouldn''t get here! Check setAxesAlgorithms().'</span>);
+    <span class="keyword">end</span> <span class="comment">% switch</span>
+
+<span class="comment">% === UPDATE CONTEXT MENU CHECK MARKS</span>
+<span class="comment">% --- Updates the check marks on the context menu passed in as the first</span>
+<span class="comment">%     argument, to match the selected item given as the second argument.</span>
+<span class="keyword">function</span> updateContextMenuChecks(menuh, selected_item)
+    <span class="keyword">global</span> DEBUGGING;
+    assert(ishandle(menuh));
+<span class="comment">%     if DEBUGGING</span>
+<span class="comment">%         disp([ 'menuh tag: ', get(menuh, 'Tag') ]);</span>
+<span class="comment">%         disp([ 'menuh children: ', class(get(menuh, 'Children')) ]);</span>
+<span class="comment">%         % *** disp(get(menuh, 'Children'));</span>
+<span class="comment">%     end</span>
+
+    child_handles = get(menuh, <span class="string">'Children'</span>); <span class="comment">% get a list of child menu items</span>
+    child_handles = child_handles';  <span class="comment">% for loops only work on column vectors!</span>
+
+    <span class="keyword">for</span> mih = child_handles <span class="comment">% for each item in the context menu...</span>
+        assert(ishandle(mih));
+        <span class="comment">%*** fprintf('mih Tag = %s, class %s\n', get(mih, 'Tag'), class(mih));</span>
+        <span class="keyword">if</span> get(mih, <span class="string">'Position'</span>) == selected_item
+            <span class="comment">% It's the one that's supposed to be checked.</span>
+            set(mih, <span class="string">'Checked'</span>, <span class="string">'on'</span>);
+        <span class="keyword">else</span>
+            set(mih, <span class="string">'Checked'</span>, <span class="string">'off'</span>);
+        <span class="keyword">end</span> <span class="comment">% if</span>
+    <span class="keyword">end</span> <span class="comment">%for</span>
+
+<span class="comment">% === end function updateContextMenuChecks</span>
+
+
+
+<span class="comment">% ============================================================================</span>
+<span class="comment">%                            P L O T T I N G</span>
+<span class="comment">% ============================================================================</span>
+
+<span class="comment">% === MAIN PLOT ROUTINE</span>
+<span class="comment">% --- Plot on the three axes based on the values of</span>
+<span class="comment">%     handles.SEQUENTIAL_PLOTS and SHOW_ITER_PLOTS.</span>
+<span class="keyword">function</span> doPlots(handles)
+    <span class="keyword">global</span> INPUT_MIN INPUT_FSTEP <span class="comment">%INPUT_MAX</span>
+    <span class="comment">%handles = guidata(gcf);</span>
+
+    <span class="comment">% A list of handles to the figure's panels:</span>
+    ax_handles = { handles.axAlg1, handles.axAlg2, handles.axAlg3 };
+    assert(ishandle(ax_handles{1}) &amp;&amp; ishandle(ax_handles{2}) &amp;&amp; <span class="keyword">...</span>
+           ishandle(ax_handles{3}));
+
+    <span class="comment">% --- Set up some things</span>
+    <span class="comment">% Clear the global "stop_plotting" and update 'handles':</span>
+    handles.STOP_PLOTTING = false;
+    handles.PLOTTING      = true;  <span class="comment">% what was the purpose of this?</span>
+    guidata(gcf, handles);  <span class="comment">% signal plot in progress</span>
+    switchCancelCloseButton(<span class="string">'cancel'</span>);
+
+    <span class="comment">% === PLOT IT!</span>
+    <span class="keyword">if</span> handles.SEQUENTIAL_PLOTS
+        doPlotsSequential(ax_handles, handles);
+    <span class="keyword">else</span>
+        doPlotsInterleaved(ax_handles, handles);
+    <span class="keyword">end</span>
+
+    <span class="comment">% --- Finish up</span>
+    handles.PLOTTING = false;
+    guidata(gcf, handles);  <span class="comment">% signal to other controls that we're done</span>
+    switchCancelCloseButton(<span class="string">'close'</span>);
+
+<span class="comment">% === end plotAxes</span>
+
+
+<span class="comment">% === SEQUENTIAL PLOTS</span>
+<span class="keyword">function</span> doPlotsSequential(ax_handles, handles)
+    <span class="keyword">global</span> INPUT_RANDOM INPUT_MIN INPUT_FSTEP DEBUGGING;
+    <span class="comment">%handles = guidata(gcf);</span>
+    <span class="comment">% a cell array of function handles to the various sorting algorithms</span>
+    <span class="comment">% (this could probably be set in globals above)</span>
+    sort_algs     = { @() disp(<span class="string">'no alg selected'</span>), @InsertionSort, <span class="keyword">...</span>
+                      @SelectionSort, @BubbleSort, <span class="keyword">...</span>
+                      @MergeSort, @Quicksort, @Quick3, @RadixSort, <span class="keyword">...</span>
+                      @TreeSort, @QuicksortMEX };
+    <span class="comment">% a cell array of function handles to the various input generators</span>
+    input_types   = { @ListRandom, @(n)ListAlreadySorted(n, <span class="string">'ascend'</span>), <span class="keyword">...</span>
+                      @(n)ListAlreadySorted(n, <span class="string">'descend'</span>), <span class="keyword">...</span>
+                      @ListFewUnique };        <span class="comment">% a function handle to the input generator to be used, indexed by the</span>
+    <span class="comment">% value of handles.INPUT_CHARACTERISTICS:</span>
+    input         = input_types{ handles.INPUT_CHARACTERISTICS };
+    <span class="keyword">if</span> DEBUGGING
+        disp(input);
+        disp(handles.INPUT_CHARACTERISTICS);
+    <span class="keyword">end</span> <span class="comment">% if DEBUGGING</span>
+    assert(handles.INPUT_CHARACTERISTICS == INPUT_RANDOM);
+
+    <span class="keyword">for</span> ah = ax_handles <span class="comment">% for each set of axes in ax_handles</span>
+        handles = guidata(gcf); <span class="comment">%refresh the guidata in case something changed</span>
+        <span class="keyword">if</span> handles.STOP_PLOTTING
+            <span class="keyword">return</span>
+        <span class="keyword">end</span> <span class="comment">%if</span>
+        <span class="comment">% A function handle to the sort algorithm [1-10] to be used, which is</span>
+        <span class="comment">% stored in the axes' 'UserData' (not sure why I did it this way):</span>
+        ah = ah{1}; <span class="comment">%#ok&lt;FXSET&gt; % because the items come back as cells!</span>
+        assert(ishandle(ah));
+        axalg = get(ah, <span class="string">'UserData'</span>);
+        <span class="keyword">if</span> isempty(axalg)
+            <span class="comment">% Skip this set of axes if the 'UserData' is empty</span>
+            fprintf(<span class="string">'Axes %s have no algorithm selected. Skipping.\n'</span>, <span class="keyword">...</span>
+                    get(ah, <span class="string">'Tag'</span>));
+            <span class="keyword">continue</span>
+        <span class="keyword">else</span>
+            sorter = sort_algs{ axalg };
+        <span class="keyword">end</span> <span class="comment">% if isempty(axalg)</span>
+
+
+        pnlh          = get(ah, <span class="string">'Parent'</span>); <span class="comment">% handle to the parent panel</span>
+        stop_set_size = get(handles.sliInputSize, <span class="string">'Value'</span>);   <span class="comment">% max set size</span>
+        set_size      = INPUT_MIN:INPUT_FSTEP:stop_set_size;  <span class="comment">% need for plot</span>
+
+        times = zeros(1, numel(set_size)); <span class="comment">% keeps track of run times per set</span>
+        k = 1;                          <span class="comment">% # of iterations</span>
+        <span class="comment">% Run INPUT_MIN:INPUT_FSTEP:&lt;the value of sliInputSize&gt; iterations</span>
+        tic;                            <span class="comment">% start timing (total run time)</span>
+        <span class="keyword">for</span> s = set_size <span class="comment">% for each set size in 'set_size':</span>
+            <span class="keyword">if</span> handles.STOP_PLOTTING
+                <span class="keyword">return</span>
+            <span class="keyword">end</span> <span class="comment">%if</span>
+
+            input_list = input(s); <span class="comment">% keep the input list for comparison later</span>
+            tic;
+            label = sprintf(<span class="string">' - running - [%i / %i iterations]'</span>, k, <span class="keyword">...</span>
+                            round(stop_set_size / INPUT_MIN));
+            updatePanelLabel(pnlh, label);
+
+            <span class="comment">% -- Run the sort algorithm for the given set size 's'</span>
+            <span class="comment">% Both of these are function handles set above, 'true' and 'ah'</span>
+            <span class="comment">% tells the sort algorithm to plot on the same set of axes while</span>
+            <span class="comment">% iterating through this input set.</span>
+            <span class="keyword">if</span> handles.SHOW_ITER_PLOTS    <span class="comment">%plot each iteration</span>
+                <span class="comment">% Bail if the control is not in sync with the global flag</span>
+                assert(get(handles.cbPlotIterations, <span class="string">'Value'</span>) == <span class="keyword">...</span>
+                   get(handles.cbPlotIterations, <span class="string">'Max'</span>));
+                sorted_list = sorter(input_list, true, ah);
+            <span class="keyword">else</span>
+                sorted_list = sorter(input_list);
+            <span class="keyword">end</span> <span class="comment">% if</span>
+            times(k) = toc;
+            k = k + 1;
+
+            <span class="comment">% Assert that the list we got back is actually sorted.</span>
+            assert(sum(sort(input_list) == sorted_list) == s);
+        <span class="keyword">end</span> <span class="comment">% for s = set_size</span>
+        total_time = toc; <span class="comment">% stop timing (total time)</span>
+
+        <span class="comment">% --- Now plot it:</span>
+        axes(ah); <span class="comment">%#ok&lt;LAXES&gt; %          % set 'ax' to be the current axes</span>
+        scatter(set_size, times, <span class="string">'d'</span>);
+        xlabel(<span class="string">'Number of input elements (N)'</span>);
+        ylabel(<span class="string">'Time to sort (s)'</span>);
+        <span class="comment">%hold on;</span>
+        <span class="comment">% TODO: Figure out how to determine the coefficients necessary to</span>
+        <span class="comment">% represent O(n), O(log(n)), O(n log(n)), etc on the same plot.</span>
+        <span class="comment">%plot(set_size,</span>
+        label = sprintf(<span class="string">' - finished (%s)'</span>, minutesAndSeconds(total_time));
+        updatePanelLabel(pnlh, label);
+
+    <span class="keyword">end</span> <span class="comment">% for ax = ax_handles</span>
+<span class="comment">% === end function doSequentialPlots(ax_handles)</span>
+
+<span class="comment">% === INTERLEAVED PLOTS</span>
+<span class="comment">% --- Plot one input set size per set of axes, /then/ increment the set</span>
+<span class="comment">%     size by INPUT_FSTEP. This is the 'race' mode.</span>
+<span class="keyword">function</span> doPlotsInterleaved(ax_handles)
+<span class="comment">% When run, loop through all three axes, running that set of axes' selected</span>
+<span class="comment">% algorithm for the given input size. Then increase by INPUT_FSTEP and do</span>
+<span class="comment">% it again until reaching the value of sliInputSize (the max input size):</span>
+    <span class="keyword">global</span> DEBUGGING INPUT_MIN INPUT_FSTEP;
+    handles = guidata(gcf);
+    <span class="comment">%save ax_handles;</span>
+
+    <span class="comment">% a cell array of function handles to the various sorting algorithms</span>
+    <span class="comment">% (this could probably be set in globals above)</span>
+    sort_algs     = { @() disp(<span class="string">'no alg selected'</span>), @InsertionSort, <span class="keyword">...</span>
+                      @SelectionSort, @BubbleSort, <span class="keyword">...</span>
+                      @MergeSort, @Quicksort, @Quick3, @RadixSort, <span class="keyword">...</span>
+                      @TreeSort, @QuicksortMEX };
+    <span class="comment">% a cell array of function handles to the various input generators</span>
+    input_types   = { @ListRandom, @(n)ListAlreadySorted(n, <span class="string">'ascend'</span>), <span class="keyword">...</span>
+                      @(n)ListAlreadySorted(n, <span class="string">'descend'</span>), <span class="keyword">...</span>
+                      @ListFewUnique };
+    <span class="comment">% a function handle to the input generator to be used, indexed by the</span>
+    <span class="comment">% value of handles.INPUT_CHARACTERISTICS:</span>
+    input         = input_types{ handles.INPUT_CHARACTERISTICS };
+    stop_set_size = get(handles.sliInputSize, <span class="string">'Value'</span>);   <span class="comment">% max set size</span>
+    set_size      = INPUT_MIN:INPUT_FSTEP:stop_set_size;  <span class="comment">% need this to plot</span>
+
+    <span class="comment">% Run INPUT_MIN:INPUT_FSTEP:&lt;the value of sliInputSize&gt; iterations1</span>
+    <span class="keyword">for</span> s = set_size <span class="comment">% for each set size in 'set_size':</span>
+        <span class="keyword">if</span> handles.STOP_PLOTTING
+            <span class="keyword">return</span>
+        <span class="keyword">end</span> <span class="comment">%if</span>
+        assert(isa(s, <span class="string">'double'</span>));
+        times = zeros(1, numel(set_size)); <span class="comment">% run times per set size</span>
+        k = 1;                          <span class="comment">% # of iterations, used to index 't'</span>
+
+        tic;                            <span class="comment">% start timing (total run time)</span>
+        <span class="comment">%*** if DEBUGGING; disp(ax_handles); end;</span>
+        <span class="keyword">for</span> ah = ax_handles <span class="comment">% for each set of axes in ax_handles</span>
+            <span class="keyword">if</span> handles.STOP_PLOTTING
+                <span class="keyword">return</span>
+            <span class="keyword">end</span>
+            ah = ah{1};  <span class="comment">%#ok&lt;FXSET&gt; % these get passed in as cells--weird.</span>
+            assert(ishandle(ah));
+            pnlh = get(ah, <span class="string">'Parent'</span>);     <span class="comment">% handle to the parent panel</span>
+            axalg = get(ah, <span class="string">'UserData'</span>);  <span class="comment">% which algorithm to use for axes</span>
+            <span class="keyword">if</span> isempty(axalg)
+                <span class="comment">% Skip this set of axes if the 'UserData' is empty</span>
+                <span class="comment">%fprintf('Axes %s have no algorithm selected. Skipping.\n', ...</span>
+                <span class="comment">%        get(ah, 'Tag'));</span>
+                <span class="keyword">continue</span>;  <span class="comment">% don't print anything, just skip</span>
+            <span class="keyword">else</span>
+                <span class="comment">% choose the sort algorithm for this set of axes</span>
+                sorter = sort_algs{ axalg };
+            <span class="keyword">end</span> <span class="comment">% if isempty(axalg)</span>
+
+            tic;
+            <span class="comment">% -- Run the sort algorithm for the given set size 's'</span>
+            <span class="comment">% Both of these are function handles set above, 'true' and 'ah'</span>
+            <span class="comment">% tells the sort algorithm to plot on the same set of axes while</span>
+            <span class="comment">% iterating through this input set.</span>
+            sorter(input(s));
+            times(k) = toc;
+
+            k = k + 1;
+            label = sprintf(<span class="string">' - running - [%i / %i iterations]'</span>, k, <span class="keyword">...</span>
+                            round(stop_set_size / INPUT_MIN));
+            updatePanelLabel(pnlh, label);
+
+        <span class="keyword">end</span> <span class="comment">% for ah = ax_handles</span>
+        total_time = toc; <span class="comment">% stop timing (total time)</span>
+
+        <span class="comment">% --- Now plot it:</span>
+        axes(ah);         <span class="comment">%#ok&lt;LAXES&gt; % set 'ax' to be the current axes</span>
+        scatter(set_size, times, <span class="string">'d'</span>);
+        xlabel(<span class="string">'Number of input elements (N)'</span>);
+        ylabel(<span class="string">'Time to sort (s)'</span>);
+        <span class="comment">%hold on;</span>
+        <span class="comment">% TODO: Figure out how to determine the coefficients necessary to</span>
+        <span class="comment">% represent O(n), O(log(n)), O(n log(n)), etc on the same plot.</span>
+        <span class="comment">%plot(set_size,</span>
+        label = sprintf(<span class="string">' - finished (%0.2e s)'</span>, total_time);
+        updatePanelLabel(pnlh, label);
+
+    <span class="keyword">end</span> <span class="comment">% for s = set_size</span>
+
+<span class="comment">% === end function doInterleavedPlots(ax_handles)</span>
+
+
+<span class="comment">% === END OF AlgorithmRace.m ===</span>
+<span class="comment">% vim: tw=78 ts=4 sw=4 expandtab</span>
+</pre><img vspace="5" hspace="5" src="AlgorithmRace_01.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+function varargout = AlgorithmRace(varargin)
+% ALGORITHM-RACE AlgorithmRace.fig
+%      Created by Team Disarray for the 13SS_ENED1091 final group projec
+%
+%      lays a graphical interface for comparing the run time of various
+%      sort algorithms on different input sizes, and input having different
+%      characteristics (sorted, few unique, etc.)
+%
+% See also: AlgorithmExplore.fig
+
+global DEBUGGING
+DEBUGGING = true;
+
+% Last Modified by GUIDE v2.5 19-Apr-2013 02:28:36
+
+% Popup  and context menu item constants (these must be "declared" in every
+% function they'll be referenced from!):
+global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
+       QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX CLEAR_AXES;
+SELECT_ALG     = 1;  % top popup menu option 
+INSERTION_SORT = 2;  % Insertion Sort                   (done)
+SELECTION_SORT = 3;  % Selection Sort                   (done)
+BUBBLE_SORT    = 4;  % Bubble Sort                      (done)
+MERGE_SORT     = 5;  % Merge Sort                       (recursive done)
+QUICKSORT      = 6;  % Quicksort
+QUICKSORT_3    = 7;  % Quicksort (3-way partition)
+RADIX_SORT     = 8;  % Radix sort
+TREE_SORT      = 9;  % Tree sort
+QUICKSORT_MEX  = 10; % Quicksort (compiled C program)
+CLEAR_AXES     = 11; % clear the current axes
+
+% Global constants for the input set size:
+global INPUT_MIN INPUT_MAX INPUT_DEFAULT INPUT_FSTEP INPUT_CSTEP;
+%VALUE_MAX      = 100;  % largest value;
+INPUT_MIN      = 10; % minimum input set
+INPUT_MAX      = 1000; % 
+INPUT_DEFAULT  = 50; % 
+% The "fine" and "coarse" step size for the "Max Input Size" selector.
+%INPUT_FSTEP     = (INPUT_MAX-INPUT_MIN) / 20 - mod(INPUT_MAX-INPUT_MIN, 20)
+%INPUT_CSTEP     = floor((INPUT_MAX-INPUT_MIN) / 5); %coarse step
+INPUT_FSTEP     = INPUT_MIN;
+INPUT_CSTEP     = floor(INPUT_MAX / 5);
+
+% The sort "input characteristics" set by the radio buttons:
+global INPUT_RANDOM INPUT_SORTED_ASC INPUT_SORTED_DESC INPUT_FEW_UNIQUE; % ...
+       %DEFAULT_INPUT_TYPE;
+INPUT_RANDOM       = 1;
+INPUT_SORTED_ASC   = 2;
+INPUT_SORTED_DESC  = 3;
+INPUT_FEW_UNIQUE   = 4;
+%DEFAULT_INPUT_TYPE = INPUT_RANDOM; 
+
+% Begin initialization code - DO NOT EDIT
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+                   'gui_Singleton',  gui_Singleton, ...
+                   'gui_OpeningFcn', @AlgorithmRace_OpeningFcn, ...
+                   'gui_OutputFcn',  @AlgorithmRace_OutputFcn, ...
+                   'gui_LayoutFcn',  [] , ...
+                   'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+% End initialization code - DO NOT EDIT
+
+% REPLACE_WITH_DASH_DASH- Executes just before AlgorithmRace is made visible.
+function AlgorithmRace_OpeningFcn(hObject, eventdata, handles, varargin) %#ok<*INUSL,*INUSL>
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to AlgorithmRace (see VARARGIN)
+global INSERTION_SORT SELECTION_SORT BUBBLE_SORT INPUT_RANDOM;
+
+% Updated this to use a 'STOP_PLOTTING' flag in the global 'handles'
+% structure intead. But both work equally well.
+%global STOP_PLOTTING;
+% Choose default command line output for AlgorithmRace
+handles.output = hObject;
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%             G L O B A L   S E T T I N G S   /   D E F A U L T S
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% If set to 'true', this will cause all of the input set sizes from INPUT_MIN
+% to the sliInputSize by INPUT_FSTEP for ONE algorithm, then plot the next
+% one.
+handles.SEQUENTIAL_PLOTS      = true;
+% When SEQUENTIAL_PLOTS is true, also plot iterations on the same set of
+% axes.
+handles.SHOW_ITER_PLOTS       = true;
+handles.STOP_PLOTTING         = false;     % signal from some control to stop
+handles.PLOTTING              = false;     % are we currently plotting?
+handles.BAR_OR_SCATTER        = 'bar';          % Default to bar charts
+
+% Give all axes/popups default algorithms on startup
+%set(handles.popAlg1, 'Value', INSERTION_SORT);  % default for 1st set of axes
+setAxesAlgorithm(handles.axAlg1, INSERTION_SORT);
+setAxesAlgorithm(handles.axAlg2, SELECTION_SORT);
+setAxesAlgorithm(handles.axAlg3, BUBBLE_SORT);
+
+% Update handles structure
+guidata(hObject, handles);
+setInputCharacteristics(INPUT_RANDOM);%, handles); % Default to INPUT_RANDOM
+
+% This sets up the initial plot - only do when we are invisible
+% so window can get raised using AlgorithmRace.
+%if strcmp(get(hObject,'Visible'),'off')
+    %plot(rand(5));
+%end
+
+% UIWAIT makes AlgorithmRace wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
+
+% REPLACE_WITH_DASH_DASH- Outputs from this function are returned to the command line.
+function varargout = AlgorithmRace_OutputFcn(hObject, eventdata, handles) %#ok<*INUSL>
+% varargout  cell array for returning output args (see VARARGOUT);
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%function FileMenu_Callback(hObject, eventdata, handles)
+% hObject    handle to FileMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function OpenMenuItem_Callback(hObject, eventdata, handles) %#ok<*INUSD,*INUSD>
+% hObject    handle to OpenMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+file = uigetfile('*.fig');
+if ~isequal(file, 0)
+    open(file);
+end
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function PrintMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to PrintMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+printdlg(handles.figure1)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function CloseMenuItem_Callback(hObject, eventdata, handles) %#ok<*DEFNU>
+% hObject    handle to CloseMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+selection = questdlg(['Close ' get(handles.figure1,'Name') '?'],...
+                     ['Close ' get(handles.figure1,'Name') '...'],...
+                     'Yes','No','Yes');
+if strcmp(selection,'No')
+    return;
+end
+
+delete(handles.figure1)
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function axLogo_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to axLogo (see GCBO)
+    img = imread('Matlab_Logo_small.png', 'BackgroundColor', [0.5,0.5,0.5]);
+    axes(hObject);
+    % See: http://www.peteryu.ca/tutorials/matlab/plot_over_image_background
+    %imagesc([100, 400], [100, 400], flipdim(img,1));
+    %set(gca, 'Visible', 'off');
+    %set(gca, 'ydir', 'normal');
+    h = imshow(img);
+    set(h, 'Parent', hObject);
+
+
+% ============================================================================
+%            A L G O R I T H M   D R O P - D O W N   S E L E C T O R S
+% ============================================================================
+
+% === CONTENDER #1 CREATE
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function popAlgSelector_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popAlg1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% For some reason, this can't be put in the CreatFcn, maybe because the
+% control hasn't been filled with values yet. Moved to
+% AlgorithmRace_OpeningFcn instead.
+% % Set popAlg1 to default to the second item (insertion sort)
+% if strcmp(get(hObject, 'Tag'), 'popAlg1')
+%     disp('Initialize first popup (popAlg1) to default to insertion sort.');
+%     %*** disp(get(hObject, 'Tag'));
+%     set(hObject, 'Value', 1);
+%     drawnow expose update;
+% end
+
+% === AXES POPUP MENU (ALGORITHM CHOICE) CALLBACK
+% REPLACE_WITH_DASH_DASH- Executes on selection change in popAlg1, popAlg2, and popAlg3
+function popAlgSelector_Callback(hObject, eventdata, handles)
+% hObject    handle to popAlg1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popAlg1 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popAlg1
+% global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
+%        RADIX_SORT TREE_SORT QUICKSORT_MEX; %#ok<*NUSED>
+ 
+% Find the axes in the parent object and get a handle to them:
+ph = get(hObject, 'Parent');
+ah = findobj(ph, 'Type', 'axes');
+% This function sets the chosen algorithm in the 'UserData' of the axes
+% themselves.
+setAxesAlgorithm(ah, get(hObject, 'Value'));
+
+    
+
+
+
+
+% ============================================================================
+%              "M A X   I N P U T   S I Z E"   C O N T R O L S
+% ============================================================================
+
+% === THE "MAX INPUT SIZE" SLIDER CONTROL
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function sliInputSize_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sliInputSize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+    global INPUT_MIN INPUT_MAX INPUT_DEFAULT INPUT_FSTEP INPUT_CSTEP
+    if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor',[.9 .9 .9]);
+    end
+
+    set(hObject, 'Value', INPUT_DEFAULT);
+    set(hObject, 'Min', INPUT_MIN);
+    set(hObject, 'Max', INPUT_MAX);
+    %set(hObject, 'SliderStep', [INPUT_FSTEP, INPUT_CSTEP]);
+
+% REPLACE_WITH_DASH_DASH- Executes on slider movement.
+function sliInputSize_Callback(hObject, eventdata, handles)
+% hObject    handle to sliInputSize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+    global INPUT_MIN INPUT_FSTEP
+    N = get(handles.sliInputSize, 'Value');    % Get the new slider value
+    N = N - mod(N, INPUT_FSTEP);               % round to nearest (fine) step
+    if N < INPUT_MIN                           % don't go lower than INPUT_MIN
+        N = INPUT_MIN;
+    end
+    set(handles.edtInputSize, 'String', N);
+
+
+% === THE "INPUT SIZE" TEXT BOX CONTROL
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function edtInputSize_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edtInputSize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+    global INPUT_DEFAULT
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+    set(hObject, 'String', INPUT_DEFAULT);    
+
+
+function edtInputSize_Callback(hObject, eventdata, handles) %#ok<*INUSL>
+% hObject    handle to edtInputSize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edtInputSize as text
+%        str2double(get(hObject,'String')) returns contents of edtInputSize as a double
+    
+    global INPUT_MIN INPUT_MAX INPUT_CSTEP
+
+    % Check to see that the value given is between INPUT_MIN and INPUT_MAX:
+    input_size = get(hObject, 'String');
+    if input_size < INPUT_MIN || input_size > INPUT_MAX
+        % Restore previous value from 'UserData'
+        set(hObject, 'String', get(hObject, 'UserData'));
+        set(hObject, 'Color', [0.6, 0.1, 0]); % a nice red color
+    else
+        % Round input size to the nearest (coarse) step:
+        input_size = input_size - mod(input_size, INPUT_CSTEP);
+        set(handles.sliInputSize, 'Value', input_size)
+        set(hObject, 'UserData', input_size);
+        set(hObject, 'Color', [0.25, 0.25, 0.25]); % back to default   
+    end % if input_size ...
+
+
+% ============================================================================
+%            R A D I O   B U T T O N S   &    C H E C K B O X E S
+% ============================================================================
+% The order on the figure is:
+% [ ] Random
+% [ ] Already Sorted (A)scending
+% [ ] Already Sorted (D)escending
+% [ ] Few unique
+
+% === RANDOM
+% === ALREADY SORTED (ASCENDING)
+% === ALREADY SORTED (DESCENDING)
+% === FEW UNIQUE (MANY DUPLICATES)
+function rdoInputCharacteristics_Callback(hObject, eventdata, guidata)
+    global DEBUGGING;
+        
+    switch get(hObject, 'Tag')
+        case 'rdoRandom'
+            setInputCharacteristics(INPUT_RANDOM);
+            if DEBUGGING
+                disp('Reached rdoRandom.');
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_RANDOM);
+            end % if DEBUGGING
+        case 'rdoSortedAsc'
+            setInputCharacteristics(INPUT_SORTED_ASC);
+            if DEBUGGING
+                disp('Reached rdoSortedAsc.');
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_SORTED_ASC);
+            end % if DEBUGGING
+        case 'rdoSortedDesc'
+            setInputCharacteristics(INPUT_SORTED_DESC);
+            if DEBUGGING
+                disp('Reached rdoSortedDesc.');
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_SORTED_DESC);
+            end % if DEBUGGING
+        case 'rdoFewUnique'
+            setInputCharacteristics(INPUT_FEW_UNIQUE);
+            if DEBUGGING
+                disp('Reached rdoFewUnique.');
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_FEW_UNIQUE);
+            end % if DEBUGGING
+        otherwise
+            assert(false);
+    end % switch/case
+    
+% === end function rdoInputCharacteristics_Callback
+
+
+
+% === "INPUT CHARACTERISTICS" CREATE FUNCTION
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function bgInputCharacteristics_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to bgInputCharacteristics (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+    % See: http://www.mathworks.com/support/solutions/en/data/1-179FO3/
+    %set(hObject, 'SelectionChangeFcn', );
+    
+    % Sample Callback:
+    % AlgorithmRace('popAlgSelector_Callback',hObject,eventdata,guidata(hObject))
+    % What this callback looks like:
+    % @(hObject,eventdata)AlgorithmRace('bgInputCharacteristics_SelectionChangeFcn',
+    % get(hObject,'SelectedObject'),eventdata,guidata(get(hObject,'SelectedObject')))
+    
+
+% !!! MATLAB NEVER RUNS THIS CALLBACK !!!
+% === "INPUT CHARACTERISTICS" CALLBACK FUNCTION
+% REPLACE_WITH_DASH_DASH- Executes for all radio buttons in the "Input Characteristics" group
+function bgInputCharacteristics_SelectionChangeFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in bgPlotSequence 
+% eventdata  structure with the following fields (see UIBUTTONGROUP)
+%	EventName: string 'SelectionChanged' (read only)
+%	OldValue: handle of the previously selected object or empty if none was selected
+%	NewValue: handle of the currently selected object
+% handles    structure with handles and user data (see GUIDATA)
+    assert(false); % do we ever get here?
+    global INPUT_RANDOM INPUT_SORTED_ASC INPUT_SORTED_DESC ...
+           INPUT_FEW_UNIQUE;  %#ok<*NUSED>
+
+    % See: http://www.mathworks.com/help/releases/R2012a/techdoc/
+    %             creating_guis/f10-998412.html#f10-1001438
+    switch get(eventdata.NewValue,'Tag')
+        case 'rdoRandom'
+            setInputCharacteristics(INPUT_RANDOM);
+            if DEBUGGING
+                disp('Reached rdoRandom.');
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_RANDOM);
+            end % if DEBUGGING
+        case 'rdoSortedAsc'
+            setInputCharacteristics(INPUT_SORTED_ASC);
+            if DEBUGGING
+                disp('Reached rdoSortedAsc.');
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_SORTED_ASC);
+            end % if DEBUGGING
+        case 'rdoSortedDesc'
+            setInputCharacteristics(INPUT_SORTED_DESC);
+            if DEBUGGING
+                disp('Reached rdoSortedDesc.');
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_SORTED_DESC);
+            end % if DEBUGGING
+        case 'rdoFewUnique'
+            setInputCharacteristics(INPUT_FEW_UNIQUE);
+            if DEBUGGING
+                disp('Reached rdoFewUnique.');
+                handles = guidata(hObject);
+                assert(handles.INPUT_CHARACTERISTICS == INPUT_FEW_UNIQUE);
+            end % if DEBUGGING
+        otherwise
+            assert(false);
+    end % switch/case
+    
+% === end function bgInputCharacteristics_SelectionChangeFcn
+      
+
+% REPLACE_WITH_DASH_DASH- Executes when selected object is changed in bgPlotSequence.
+function bgPlotSequence_SelectionChangeFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in bgPlotSequence 
+% eventdata  structure with the following fields (see UIBUTTONGROUP)
+%	EventName: string 'SelectionChanged' (read only)
+%	OldValue: handle of the previously selected object or empty if none was selected
+%	NewValue: handle of the currently selected object
+% handles    structure with handles and user data (see GUIDATA)
+    global DEBUGGING;
+    cbh = handles.cbPlotIterations;
+    switch get(eventdata.NewValue,'Tag')
+        case 'rdoSequentialPlots'
+            if DEBUGGING; disp('Sequential plotting ENABLED.'); end;
+            handles.SEQUENTIAL_PLOTS = true;
+            
+            % Re-enable the checkbox (but do not check or sync global flag;
+            % this will be done in the doSequentialPlot function):
+            set(cbh, 'Enable', 'on');  % re-enable the checkbox
+            if DEBUGGING: disp('Plotting of iterations FREED.'); end;
+            
+            %if get(cbh, 'Value') == get(cbh, 'Max') % if it's checked
+            %    handles.SHOW_ITER_PLOTS = true;
+            %end %if
+        case 'rdoInterleavedPlots'
+            handles.SEQUENTIAL_PLOTS = false;
+            if DEBUGGING; disp('Sequential plotting disabled.'); end;
+            
+            % Uncheck and disable 'Plot iterations' & update the global flag:
+            set(cbh, 'Value', get(cbh, 'Min')); % uncheck it
+            set(cbh, 'Enable', 'off');          % disable it (grey it out)
+            handles.SHOW_ITER_PLOTS = false;    % unset the global in handles
+            if DEBUGGING; disp('Plotting of iterations blocked.'); end;     
+        otherwise
+            assert(false);
+    end % switch / case
+    % Don't forget to update guihandles:
+    guidata(hObject, handles);
+    
+% === end function bgPlotSequence_SelectionChangeFcn()
+
+
+% === CALLBACK FOR 'PLOT ITERATIONS' CHECKBOX
+% REPLACE_WITH_DASH_DASH- Executes on button press in cbPlotIterations.
+function cbPlotIterations_Callback(hObject, eventdata, handles)
+% hObject    handle to cbPlotIterations (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of cbPlotIterations
+    global DEBUGGING;
+
+    %assert(false); % do we ever get here?
+    if get(hObject, 'Value') == get(hObject, 'Min') %unchecked
+        if DEBUGGING; disp('Plotting of iterations disabled.'); end;
+        handles.SHOW_ITER_PLOTS = false;
+    else % checked (1 or some other value)
+        if DEBUGGING; disp('Plotting of iterations enabled.'); end;
+        handles.SHOW_ITER_PLOTS = true;
+    end
+    % don't forget to update the guidata structure for everyone else:
+    guidata(hObject, handles);
+    
+% === end function cbPlotIterations_Callback
+
+
+% ============================================================================
+%            A X E S  /  P A N E L   C R E A T E   F U N C T I O N S
+% ============================================================================
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function axAlgX_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to axAlg1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: place code in OpeningFcn to populate axAlg1
+    % Set 'haxAlgN' to the handle to the axes
+    %setappdata(gcf, 'haxAlg1', hObject);    
+
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function pnlAlgX_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pnlAlg1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Remember the initial value of Title in 'UserData'
+set(hObject, 'UserData', get(hObject, 'Title'));
+
+% ============================================================================
+%                             B U T T O N S                     
+% ============================================================================
+
+% === THE "GO" BUTTON
+% REPLACE_WITH_DASH_DASH- Executes on button press in btnGo.
+function btnGo_Callback(hObject, eventdata, handles)
+% hObject    handle to btnGo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+    h = findobj(get(hObject, 'Parent'), 'Tag', 'bgInputCharacteristics');
+    disp(get(h, 'SelectionChangeFcn'));
+    return;
+    doPlots(handles);
+
+% === END OF function btnGo_Callback()
+
+    
+% === THE "CANCEL" BUTTON
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function btnCancelClose_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to btnCancelClose (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+    set(hObject, 'String', 'Close');
+    handles.DEFAULT_BUTTON_BG = get(hObject, 'BackgroundColor');
+    guidata(hObject, handles);
+
+
+% REPLACE_WITH_DASH_DASH- Executes on button press in btnCancelClose.
+function btnCancelClose_Callback(hObject, eventdata, handles)
+% hObject    handle to btnCancelClose (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+%handles.stop_plotting = true;
+%global STOP_PLOTTING
+%STOP_PLOTTING=true;
+if handles.PLOTTING == true
+    handles.STOP_PLOTTING = true;
+    % the 'go' button callback should set PLOTTING to false when the sort
+    % algorithm falls through, but I'll set it here anyway in case the sort
+    % algorithm is interrupted/crashes:
+    handles.PLOTTING = false;
+    disp('User requested to stop plotting.');
+    set(hObject, 'String', 'Close');
+    guidata(hObject, handles); % update 'handles' structure for other controls
+else
+    close(gcf);
+end %if
+
+
+% === THE "CLEAR AXES" BUTTON
+% REPLACE_WITH_DASH_DASH- Executes on button press in btnClearAxes.
+function btnClearAxes_Callback(hObject, eventdata, handles)
+% hObject    handle to btnClearAxes (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+for ah = { handles.axAlg1, handles.axAlg2, handles.axAlg3 }
+    ah = ah{1}; %#ok<FXSET> % some cell array weirdness
+    assert(ishandle(ah));
+    cla(ah);
+end % for
+
+
+% REPLACE_WITH_DASH_DASH- If Enable == 'on', executes on mouse press in 5 pixel border.
+% REPLACE_WITH_DASH_DASH- Otherwise, executes on mouse press in 5 pixel border or over txtTitle.
+function txtTitle_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to txtTitle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+disp('User clicked on the title.');    
+web('./Help.htm');
+
+
+% ============================================================================
+%                                M E N U S            
+% ============================================================================
+
+% ==
+function mnuAxesContextMenu_Callback(hObject, eventdata, handles)
+% hObject    handle to mnuClearAxes (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% TODO: This really should be merged with setAxesAlgorithm(), since they do
+% virtually the same thing.
+    global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
+           QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX ...
+           CLEAR_AXES DEBUGGING; %#ok<*NUSED,NUSED>
+
+    % Get a handle to the axes within the parent object
+    % *** Except the "parent" for a context menu is the figure, so this
+    % doesn't work. Would need to create three duplicate context menus for
+    % each set of axes. No thanks.
+    %ah = get(gcbo, 'Parent'); % (should be the axes)
+    ah = handles.axAlg1; %just control the upper-left axes
+    assert(ishandle(ah));
+    if DEBUGGING; disp([ 'mnuAxesContextMenu_Callback: ah = ', ...
+                        get(ah, 'Tag') ]); end
+    menupos = get(hObject, 'Position'); % basically the same as 'Value'
+    switch menupos
+        case { INSERTION_SORT, SELECTION_SORT, BUBBLE_SORT, MERGE_SORT, ...
+               QUICKSORT, QUICKSORT_3, RADIX_SORT, TREE_SORT, QUICKSORT_MEX }
+           %set(ah, 'UserData', menupos);
+           setAxesAlgorithm(ah, menupos);
+           % Give 'updateContextMenuChecks' the parent (container) menu
+           % handle and the selected item:
+           updateContextMenuChecks(get(hObject, 'Parent'), menupos);
+        case CLEAR_AXES
+            cla(ah);
+        otherwise
+            % There's an error
+            disp('Shouldn''t get here! Check setAxesAlgorithms().');
+    end % switch      
+
+
+% ============================================================================
+%                    H E L P E R   F U N C T I O N S            
+% ============================================================================
+
+% === DO SOME FUNCTION FOR ALL AXES
+% REPLACE_WITH_DASH_DASH- Execute 'func' for each set of axes on the figure (used to clear axes)
+function [run_time] = doForAllAxes(func) %, handles)
+% AlgorithmRace.m - doForAllAxes
+%                   perform a function (passed as a function handle) on all
+%                   axes found in the second argument, 'handles'.
+    ax_handles = findobj('-regexp', 'Tag', '^axAlg');
+        
+    tic;
+    for ah = ax_handles
+        func(ah{1});  % comes in as cells REPLACE_WITH_DASH_DASH weird.
+    end
+    run_time = toc;
+    
+% XXX SET THE SORTING ALGORITHM
+% REPLACE_WITH_DASH_DASH- (insertion, selection, bubble, etc.) These are defined as globals
+%     near the top of this file.
+% function setSortAlgorithm(alg)
+%     global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
+%        QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX;
+% 
+%     handles.SORT_ALGORITHM = alg;
+%     guidata(hObject, handles); % update the handles structure
+
+% === UPDATE PANEL LABEL
+% REPLACE_WITH_DASH_DASH- Update the panel label for the given handle:
+function updatePanelLabel(pnlh, label_or_default)
+    assert(ishandle(pnlh));
+    default_lbl   = get(pnlh, 'UserData');  % the default label
+    if strcmp(label_or_default, 'default')
+        set(pnlh, 'Title', default_lbl);
+    else
+        set(pnlh, 'Title', [ default_lbl, label_or_default ]);
+    end % if
+    drawnow expose;
+% === end function updatePanelLabel(panel_handle)
+
+
+% === FORMAT TIMES IN SECONDS REPLACE_WITH_DASH_DASH> MINUTES AND SECONDS
+% REPLACE_WITH_DASH_DASH- Format a long run time in seconds in to a nice display in
+%     minutes/seconds
+function [ formatted_t ] = minutesAndSeconds(t)
+    if t > 60
+        formatted_t = sprintf('%.0f m, %0.2f s', floor(t/60), mod(t/60));
+    else
+        formatted_t = sprintf('%0.2f s', t);  % '%i' doesn't work like C.
+    end %if  
+% === end function minutesAndSeconds(time)
+
+   
+% === SWITCH CANCEL/CLOSE BUTTON STATE
+% REPLACE_WITH_DASH_DASH- Switch the Cancel/Close button's state from 'Close' to 'Cancel' and
+% back.
+function switchCancelCloseButton(state)
+    handles = guidata(gcf);
+    if strcmp(state, 'cancel')
+        set(handles.btnCancelClose, 'String', 'Cancel');
+        % reddish
+        set(handles.btnCancelClose, 'BackgroundColor', [1.0, 0.6, 0.6]);
+    else
+        btnbg = handles.DEFAULT_BUTTON_BG;
+        set(handles.btnCancelClose, 'String', 'Close');
+        set(handles.btnCancelClose, 'BackgroundColor', btnbg);
+    end % if state == cancel
+    
+% === SET THE INPUT SET CHARACTERISTICS
+% REPLACE_WITH_DASH_DASH- (random, already sorted, etc.)
+function setInputCharacteristics(type)%, handles)
+    %assert(false); % do we ever get here?
+    global INPUT_RANDOM INPUT_SORTED_ASC INPUT_SORTED_DESC ...
+           INPUT_FEW_UNIQUE;  %#ok<*NUSED>
+
+    handles = guidata(gcf);
+    handles.INPUT_CHARACTERISTICS = type;
+    guidata(gcf, handles); % update the handles structure
+    
+    
+% === UPDATE SORT ALGORITHM FOR A SET OF AXES
+% REPLACE_WITH_DASH_DASH- Store the chosen sort algorithm in the axes' 'UserData' structure:
+function setAxesAlgorithm(ah, alg) %#ok<*DEFNU>
+    assert(ishandle(ah));
+    global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
+           QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX ...
+           CLEAR_AXES; %#ok<*NUSED,NUSED>
+    switch alg
+        case { INSERTION_SORT, SELECTION_SORT, BUBBLE_SORT, MERGE_SORT, ...
+               QUICKSORT, QUICKSORT_3, RADIX_SORT, TREE_SORT, QUICKSORT_MEX }
+           set(ah, 'UserData', alg);
+           ph = get(ah, 'Parent');
+           ch = findobj(ph, '-regexp', 'Tag', 'pop');  % popup control
+           set(ch, 'Value', alg);
+        otherwise
+            % There's an error
+            disp('Shouldn''t get here! Check setAxesAlgorithms().');
+    end % switch
+    
+% === UPDATE CONTEXT MENU CHECK MARKS
+% REPLACE_WITH_DASH_DASH- Updates the check marks on the context menu passed in as the first
+%     argument, to match the selected item given as the second argument.
+function updateContextMenuChecks(menuh, selected_item)
+    global DEBUGGING;
+    assert(ishandle(menuh));
+%     if DEBUGGING
+%         disp([ 'menuh tag: ', get(menuh, 'Tag') ]);
+%         disp([ 'menuh children: ', class(get(menuh, 'Children')) ]);
+%         % *** disp(get(menuh, 'Children'));
+%     end
+    
+    child_handles = get(menuh, 'Children'); % get a list of child menu items
+    child_handles = child_handles';  % for loops only work on column vectors!
+    
+    for mih = child_handles % for each item in the context menu...
+        assert(ishandle(mih));
+        %*** fprintf('mih Tag = %s, class %s\n', get(mih, 'Tag'), class(mih));
+        if get(mih, 'Position') == selected_item
+            % It's the one that's supposed to be checked.
+            set(mih, 'Checked', 'on');
+        else
+            set(mih, 'Checked', 'off');
+        end % if
+    end %for
+
+% === end function updateContextMenuChecks
+
+       
+
+% ============================================================================
+%                            P L O T T I N G            
+% ============================================================================
+ 
+% === MAIN PLOT ROUTINE
+% REPLACE_WITH_DASH_DASH- Plot on the three axes based on the values of
+%     handles.SEQUENTIAL_PLOTS and SHOW_ITER_PLOTS.
+function doPlots(handles)
+    global INPUT_MIN INPUT_FSTEP %INPUT_MAX
+    %handles = guidata(gcf);
+
+    % A list of handles to the figure's panels:
+    ax_handles = { handles.axAlg1, handles.axAlg2, handles.axAlg3 };
+    assert(ishandle(ax_handles{1}) && ishandle(ax_handles{2}) && ...
+           ishandle(ax_handles{3}));
+
+    % REPLACE_WITH_DASH_DASH- Set up some things
+    % Clear the global "stop_plotting" and update 'handles':
+    handles.STOP_PLOTTING = false;
+    handles.PLOTTING      = true;  % what was the purpose of this?
+    guidata(gcf, handles);  % signal plot in progress
+    switchCancelCloseButton('cancel');
+
+    % === PLOT IT!
+    if handles.SEQUENTIAL_PLOTS
+        doPlotsSequential(ax_handles, handles);
+    else
+        doPlotsInterleaved(ax_handles, handles);
+    end    
+
+    % REPLACE_WITH_DASH_DASH- Finish up
+    handles.PLOTTING = false;
+    guidata(gcf, handles);  % signal to other controls that we're done
+    switchCancelCloseButton('close');
+
+% === end plotAxes
+
+
+% === SEQUENTIAL PLOTS
+function doPlotsSequential(ax_handles, handles)
+    global INPUT_RANDOM INPUT_MIN INPUT_FSTEP DEBUGGING;
+    %handles = guidata(gcf);
+    % a cell array of function handles to the various sorting algorithms
+    % (this could probably be set in globals above)
+    sort_algs     = { @() disp('no alg selected'), @InsertionSort, ...
+                      @SelectionSort, @BubbleSort, ...
+                      @MergeSort, @Quicksort, @Quick3, @RadixSort, ...
+                      @TreeSort, @QuicksortMEX };
+    % a cell array of function handles to the various input generators
+    input_types   = { @ListRandom, @(n)ListAlreadySorted(n, 'ascend'), ...
+                      @(n)ListAlreadySorted(n, 'descend'), ...
+                      @ListFewUnique };        % a function handle to the input generator to be used, indexed by the
+    % value of handles.INPUT_CHARACTERISTICS:
+    input         = input_types{ handles.INPUT_CHARACTERISTICS };
+    if DEBUGGING
+        disp(input);
+        disp(handles.INPUT_CHARACTERISTICS);
+    end % if DEBUGGING
+    assert(handles.INPUT_CHARACTERISTICS == INPUT_RANDOM);
+    
+    for ah = ax_handles % for each set of axes in ax_handles
+        handles = guidata(gcf); %refresh the guidata in case something changed
+        if handles.STOP_PLOTTING
+            return
+        end %if
+        % A function handle to the sort algorithm [1-10] to be used, which is
+        % stored in the axes' 'UserData' (not sure why I did it this way):
+        ah = ah{1}; %#ok<FXSET> % because the items come back as cells!
+        assert(ishandle(ah));
+        axalg = get(ah, 'UserData');
+        if isempty(axalg)
+            % Skip this set of axes if the 'UserData' is empty
+            fprintf('Axes %s have no algorithm selected. Skipping.\n', ...
+                    get(ah, 'Tag'));
+            continue
+        else
+            sorter = sort_algs{ axalg };
+        end % if isempty(axalg)
+
+
+        pnlh          = get(ah, 'Parent'); % handle to the parent panel
+        stop_set_size = get(handles.sliInputSize, 'Value');   % max set size
+        set_size      = INPUT_MIN:INPUT_FSTEP:stop_set_size;  % need for plot
+
+        times = zeros(1, numel(set_size)); % keeps track of run times per set
+        k = 1;                          % # of iterations
+        % Run INPUT_MIN:INPUT_FSTEP:<the value of sliInputSize> iterations
+        tic;                            % start timing (total run time)
+        for s = set_size % for each set size in 'set_size':
+            if handles.STOP_PLOTTING
+                return
+            end %if
+            
+            input_list = input(s); % keep the input list for comparison later
+            tic;
+            label = sprintf(' - running - [%i / %i iterations]', k, ...
+                            round(stop_set_size / INPUT_MIN));
+            updatePanelLabel(pnlh, label);
+            
+            % REPLACE_WITH_DASH_DASH Run the sort algorithm for the given set size 's'
+            % Both of these are function handles set above, 'true' and 'ah'
+            % tells the sort algorithm to plot on the same set of axes while
+            % iterating through this input set.
+            if handles.SHOW_ITER_PLOTS    %plot each iteration
+                % Bail if the control is not in sync with the global flag
+                assert(get(handles.cbPlotIterations, 'Value') == ...
+                   get(handles.cbPlotIterations, 'Max'));
+                sorted_list = sorter(input_list, true, ah);
+            else
+                sorted_list = sorter(input_list);
+            end % if
+            times(k) = toc;
+            k = k + 1;
+            
+            % Assert that the list we got back is actually sorted.
+            assert(sum(sort(input_list) == sorted_list) == s);
+        end % for s = set_size
+        total_time = toc; % stop timing (total time)
+
+        % REPLACE_WITH_DASH_DASH- Now plot it:
+        axes(ah); %#ok<LAXES> %          % set 'ax' to be the current axes
+        scatter(set_size, times, 'd');
+        xlabel('Number of input elements (N)');
+        ylabel('Time to sort (s)');
+        %hold on;
+        % TODO: Figure out how to determine the coefficients necessary to
+        % represent O(n), O(log(n)), O(n log(n)), etc on the same plot.
+        %plot(set_size,
+        label = sprintf(' - finished (%s)', minutesAndSeconds(total_time));
+        updatePanelLabel(pnlh, label);
+
+    end % for ax = ax_handles
+% === end function doSequentialPlots(ax_handles)
+
+% === INTERLEAVED PLOTS
+% REPLACE_WITH_DASH_DASH- Plot one input set size per set of axes, /then/ increment the set
+%     size by INPUT_FSTEP. This is the 'race' mode.
+function doPlotsInterleaved(ax_handles)
+% When run, loop through all three axes, running that set of axes' selected
+% algorithm for the given input size. Then increase by INPUT_FSTEP and do
+% it again until reaching the value of sliInputSize (the max input size):
+    global DEBUGGING INPUT_MIN INPUT_FSTEP;
+    handles = guidata(gcf);
+    %save ax_handles;
+    
+    % a cell array of function handles to the various sorting algorithms
+    % (this could probably be set in globals above)
+    sort_algs     = { @() disp('no alg selected'), @InsertionSort, ...
+                      @SelectionSort, @BubbleSort, ...
+                      @MergeSort, @Quicksort, @Quick3, @RadixSort, ...
+                      @TreeSort, @QuicksortMEX };
+    % a cell array of function handles to the various input generators
+    input_types   = { @ListRandom, @(n)ListAlreadySorted(n, 'ascend'), ...
+                      @(n)ListAlreadySorted(n, 'descend'), ...
+                      @ListFewUnique };
+    % a function handle to the input generator to be used, indexed by the
+    % value of handles.INPUT_CHARACTERISTICS:
+    input         = input_types{ handles.INPUT_CHARACTERISTICS };
+    stop_set_size = get(handles.sliInputSize, 'Value');   % max set size
+    set_size      = INPUT_MIN:INPUT_FSTEP:stop_set_size;  % need this to plot
+    
+    % Run INPUT_MIN:INPUT_FSTEP:<the value of sliInputSize> iterations1
+    for s = set_size % for each set size in 'set_size':
+        if handles.STOP_PLOTTING
+            return
+        end %if
+        assert(isa(s, 'double'));
+        times = zeros(1, numel(set_size)); % run times per set size
+        k = 1;                          % # of iterations, used to index 't'
+        
+        tic;                            % start timing (total run time)
+        %*** if DEBUGGING; disp(ax_handles); end;
+        for ah = ax_handles % for each set of axes in ax_handles
+            if handles.STOP_PLOTTING
+                return
+            end
+            ah = ah{1};  %#ok<FXSET> % these get passed in as cellsREPLACE_WITH_DASH_DASHweird.
+            assert(ishandle(ah));
+            pnlh = get(ah, 'Parent');     % handle to the parent panel
+            axalg = get(ah, 'UserData');  % which algorithm to use for axes
+            if isempty(axalg)
+                % Skip this set of axes if the 'UserData' is empty
+                %fprintf('Axes %s have no algorithm selected. Skipping.\n', ...
+                %        get(ah, 'Tag'));
+                continue;  % don't print anything, just skip
+            else
+                % choose the sort algorithm for this set of axes
+                sorter = sort_algs{ axalg };
+            end % if isempty(axalg)
+            
+            tic;
+            % REPLACE_WITH_DASH_DASH Run the sort algorithm for the given set size 's'
+            % Both of these are function handles set above, 'true' and 'ah'
+            % tells the sort algorithm to plot on the same set of axes while
+            % iterating through this input set.
+            sorter(input(s));
+            times(k) = toc;
+            
+            k = k + 1;
+            label = sprintf(' - running - [%i / %i iterations]', k, ...
+                            round(stop_set_size / INPUT_MIN));
+            updatePanelLabel(pnlh, label);
+
+        end % for ah = ax_handles
+        total_time = toc; % stop timing (total time)
+
+        % REPLACE_WITH_DASH_DASH- Now plot it:
+        axes(ah);         %#ok<LAXES> % set 'ax' to be the current axes
+        scatter(set_size, times, 'd');
+        xlabel('Number of input elements (N)');
+        ylabel('Time to sort (s)');
+        %hold on;
+        % TODO: Figure out how to determine the coefficients necessary to
+        % represent O(n), O(log(n)), O(n log(n)), etc on the same plot.
+        %plot(set_size, 
+        label = sprintf(' - finished (%0.2e s)', total_time);
+        updatePanelLabel(pnlh, label);
+
+    end % for s = set_size
+
+% === end function doInterleavedPlots(ax_handles)
+
+		
+% === END OF AlgorithmRace.m ===
+% vim: tw=78 ts=4 sw=4 expandtab
+
+##### SOURCE END #####
+--></body></html>
