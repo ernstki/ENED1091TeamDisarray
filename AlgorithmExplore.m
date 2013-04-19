@@ -35,7 +35,7 @@ TREE_SORT      = 7; % Tree sort
 QUICKSORT_MEX  = 8; % Quicksort (compiled C program)
 
 
-% Last Modified by GUIDE v2.5 16-Apr-2013 13:39:14
+% Last Modified by GUIDE v2.5 19-Apr-2013 13:46:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -95,11 +95,12 @@ function Go_Callback(hObject, eventdata, handles)
 % hObject    handle to Go (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global SELECTION_SORT BUBBLE_SORT MERGE_SORT QUICKSORT QUICKSORT_3 ...
+        RADIX_SORT TREE_SORT QUICKSORT_MEX
 axes(handles.axes1);
 cla;
 
-%BubbleSort(randi(50,1,50), true, handles.axes1);
-%randi-depends on set size--no more than 50
+%need help with the edit size option
 popup_sel_index = get(handles.popAlgs, 'Value');
 switch popup_sel_index
     case 1
@@ -239,3 +240,13 @@ function Hyperlink_Callback(hObject, eventdata, handles)
 
 web('-new')
 web('http://www.sorting-algorithms.com/')
+
+
+
+function edit3_Callback(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit3 as text
+%        str2double(get(hObject,'String')) returns contents of edit3 as a double
