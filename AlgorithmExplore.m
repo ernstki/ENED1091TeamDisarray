@@ -37,7 +37,7 @@ TREE_SORT      = 9;  % Tree sort
 QUICKSORT_MEX  = 10; % Quicksort (compiled C program)
 
 
-% Last Modified by GUIDE v2.5 19-Apr-2013 13:46:09
+% Last Modified by GUIDE v2.5 19-Apr-2013 21:27:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -69,6 +69,8 @@ function AlgorithmExplore_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for AlgorithmExplore
 handles.output = hObject;
 handles.BAR_OR_SCATTER = 'bar';
+handles.PLOTTING = false;
+handles.STOP_PLOTTING = false;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -98,7 +100,7 @@ global SELECT_ALG INSERTION_SORT SELECTION_SORT BUBBLE_SORT MERGE_SORT ...
        QUICKSORT QUICKSORT_3 RADIX_SORT TREE_SORT QUICKSORT_MEX;
 axes(handles.axes1);
 cla;
-
+%MAKE CLEAR BUTTON
 popup_sel_index = get(handles.popAlgs, 'Value');
 handles.STOP_PLOTTING = false;
 handles.PLOTTING = true;
@@ -129,7 +131,7 @@ switch popup_sel_index
         QuicksortMEX(list,true,handles.axes1);
 end
 handles.PLOTTING = false;
-
+guidata(hObject,handles);
 % --------------------------------------------------------------------
 function FileMenu_Callback(hObject, eventdata, handles)
 % hObject    handle to FileMenu (see GCBO)
@@ -249,3 +251,31 @@ function Hyperlink_Callback(hObject, eventdata, handles)
 web('-new')
 web('http://www.sorting-algorithms.com/')
 
+
+
+% --- Executes on button press in Cancel.
+function Cancel_Callback(hObject, eventdata, handles)
+% hObject    handle to Cancel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if handles.PLOTTING == true
+    handles.STOP_PLOTTING = true;
+    % the 'go' button callback should set PLOTTING to false when the sort
+    % algorithm falls through, but I'll set it here anyway in case the sort
+    % algorithm is interrupted/crashes:
+    handles.PLOTTING = false;
+    disp('User requested to stop plotting.');
+    %set(hObject, 'String', 'Close');
+    guidata(hObject, handles); % update 'handles' structure for other controls
+else
+    close(gcf);
+end %if
+
+
+% --- Executes on button press in Clear.
+function Clear_Callback(hObject, eventdata, handles)
+% hObject    handle to Clear (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+cla(handles.axes1);
