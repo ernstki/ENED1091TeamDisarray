@@ -770,10 +770,21 @@ function setAxesAlgorithm(ah, alg) %#ok<*DEFNU>
     switch alg
         case { INSERTION_SORT, SELECTION_SORT, BUBBLE_SORT, MERGE_SORT, ...
                QUICKSORT, QUICKSORT_3, RADIX_SORT, TREE_SORT, QUICKSORT_MEX }
-           set(ah, 'UserData', alg);
-           ph = get(ah, 'Parent');
-           ch = findobj(ph, '-regexp', 'Tag', 'pop');  % popup control
-           set(ch, 'Value', alg);
+            set(ah, 'UserData', alg);
+            ph = get(ah, 'Parent');
+            ch = findobj(ph, '-regexp', 'Tag', 'pop');  % popup control
+            set(ch, 'Value', alg);
+        case SELECT_ALG
+            % Use this option to 'unset' the algorithm for a set of axes.
+            % The plot routines know to skip this figure. Unset 'UserData'
+            % (but it actually does exactly the same as the above 'case')
+            set(ah, 'UserData', alg);
+            ph = get(ah, 'Parent');
+            ch = findobj(ph, '-regexp', 'Tag', 'pop');  % popup control
+            set(ch, 'Value', alg);
+            
+            % Also clear these axes:
+            cla(ah);
         otherwise
             % There's an error
             disp('Shouldn''t get here! Check setAxesAlgorithms().');
@@ -873,7 +884,7 @@ function doPlots()
 
 % === SEQUENTIAL PLOTS
 function doPlotsSequential(ax_handles)
-    global INPUT_RANDOM INPUT_MIN INPUT_FSTEP DEBUGGING;
+    global SELECT_ALG INPUT_RANDOM INPUT_MIN INPUT_FSTEP DEBUGGING;
     handles = guidata(gcf);
     % a cell array of function handles to the various sorting algorithms
     % (this could probably be set in globals above)
@@ -896,7 +907,7 @@ function doPlotsSequential(ax_handles)
         ah = ah{1}; %#ok<FXSET> % because the items come back as cells!
         assert(ishandle(ah));
         axalg = get(ah, 'UserData');
-        if isempty(axalg)
+        if axalg == SELECT_ALG || isempty(axalg)
             % Skip this set of axes if the 'UserData' is empty
             fprintf('Axes %s have no algorithm selected. Skipping.\n', ...
                     get(ah, 'Tag'));
