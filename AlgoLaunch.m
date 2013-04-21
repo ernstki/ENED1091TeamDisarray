@@ -107,7 +107,7 @@ guidata(hObject, handles);
 % ----------------------------------------------------------------------------
     
 % -- Draw the logo
-img = imread('./images/algo-race-sequential.png', 'BackgroundColor', ...
+img = imread('./images/algo_race_sequential.png', 'BackgroundColor', ...
              [0.5,0.5,0.5]); 
 % the tag for this set of axes disappears randomly, hence this
 % workaround:
