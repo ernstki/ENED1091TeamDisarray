@@ -24,7 +24,7 @@ function varargout = AlgoLaunch(varargin)
 
 global DEBUGGING HELP_DOC_URL;
 DEBUGGING = true;
-HELP_DOC_URL = 'Final Report.htm#instructions';
+HELP_DOC_URL = 'Final_Report.htm#instructions';
 
 % Last Modified by GUIDE v2.5 20-Apr-2013 21:23:16
 
@@ -184,8 +184,8 @@ function helplaunch_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global HELP_DOC_URL;
-%web([ pwd, '/Final Report.htm#instructions' ]);
-%disp('Final Report.htm');
+%web([ pwd, '/Final_Report.htm#instructions' ]);
+%disp('Final_Report.htm');
 web(HELP_DOC_URL);  % some trouble with this on Windows
 %web([pwd, '/', HELP_DOC_URL], '-browser');
 

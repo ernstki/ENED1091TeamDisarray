@@ -151,7 +151,7 @@ handles.ALG_DESCRIPTIONS = { ...
 	  '', ...
 	  'Sorry. :(' }, ...
     }; % handles.ALG_DESCRIPTIONS (whew!)
-handles.ALG_EXTERNAL_HELP = { 'Final Report.htm#instructions',
+handles.ALG_EXTERNAL_HELP = { 'Final_Report.htm#algoexplore',
     'http://www.sorting-algorithms.com/insertion-sort',
     'http://www.sorting-algorithms.com/selection-sort',
     'http://www.sorting-algorithms.com/bubble-sort',
@@ -421,8 +421,17 @@ function Hyperlink_Callback(hObject, eventdata, handles)
 % hObject    handle to Hyperlink (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-class(get(hObject, 'UserData'));
-web(get(hObject, 'UserData'), '-browser');
+url = get(hObject, 'UserData');
+
+% See if the URL starts with http[s]://:
+if isempty(regexp(url, '^https?://', 'once'))
+    % This is the local online help. Open the online help for
+    % AlgorithmExplore in the built-in browser:
+    web(url);
+else
+    % open with the OS default web browser:
+    web(url, '-browser');
+end % if the URL /doesn't/ start with http[s]://
 
 
 % --- Executes during object creation, after setting all properties.
