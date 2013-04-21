@@ -22,10 +22,11 @@ function varargout = AlgoLaunch(varargin)
 
 % Edit the above text to modify the response to help launch
 
-global DEBUGGING
+global DEBUGGING HELP_DOC_URL;
 DEBUGGING = true;
+HELP_DOC_URL = 'Final Report.htm#instructions';
 
-% Last Modified by GUIDE v2.5 19-Apr-2013 02:28:36
+% Last Modified by GUIDE v2.5 20-Apr-2013 21:23:16
 
 % Popup  and context menu item constants (these must be "declared" in every
 % function they'll be referenced from!):
@@ -99,8 +100,21 @@ handles.output = hObject;
 guidata(hObject, handles);
 
 % UIWAIT makes AlgoLaunch wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+% uiwait(handles.AlgoLaunch);
 
+% ----------------------------------------------------------------------------
+%                S E T     U P     G U I     C O N T R O L S            
+% ----------------------------------------------------------------------------
+    
+% -- Draw the logo
+img = imread('./images/algo-race-sequential.png', 'BackgroundColor', ...
+             [0.5,0.5,0.5]); 
+% the tag for this set of axes disappears randomly, hence this
+% workaround:
+%axes(handles.axLogo);  
+ah = findobj(handles.pnlTopBanner, 'Type', 'axes');
+axes(ah)
+imgh = imshow(img);
 
 % --- Outputs from this function are returned to the command line.
 function varargout = AlgoLaunch_OutputFcn(hObject, eventdata, handles) 
@@ -114,31 +128,54 @@ varargout{1} = handles.output;
 
 
 % --- Executes on button press in explorebutton.
-function explorebutton_Callback(hObject, eventdata, handles)
-AlgorithmExplore
 
 % hObject    handle to explorebutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+function explorebutton_Callback(hObject, eventdata, handles)
+global SELECT_ALG;
+
+% If user wanted a specific algorithm, set it in appdata here:
+setappdata(0, 'ALGOEXPLORE_STARTUP_ALG', get(handles.ExploreInput, 'Value'));
+AlgorithmExplore;
+pause(1);
+
+while getappdata(0, 'ALGOEXPLORE_OPEN')
+    pause(1);
+    set(handles.ExploreState, 'String', 'Open')
+    % Catch if figure was closed with 'X' button.
+    if ~isFigureOpen('AlgoExplore')
+        break
+    end
+end
+set(handles.ExploreState, 'String', '')
+
+% === end function exploreButton_Callback()
 
 
 % --- Executes on button press in racebutton.
+% hObject    handle to racebutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 function racebutton_Callback(hObject, eventdata, handles)
 AlgorithmRace
-pause(2);
-while getappdata(0, ALGORACE_OPEN)
+pause(1);
+
+while getappdata(0, 'ALGORACE_OPEN')
     pause(1);
-    while getappdata(0, ALGORACE_PLOTTING)
+    % This inner loop doesn't actually work. Dunno how to signal to the
+    % other form to take a break and let AlgoLaunch update its controls...
+    while getappdata(0, 'ALGORACE_PLOTTING')
         pause(1);
         set(handles.RaceState, 'String', 'Plotting...')
     end
     set(handles.RaceState, 'String', 'Open')
+    % Redundant check (just in case figure was closed with the 'X' button):
+    if ~isFigureOpen('AlgoRace')
+        break
+    end
 end
 set(handles.RaceState, 'String', '')
-
-% hObject    handle to racebutton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 
 % --- Executes on button press in helplaunch.
@@ -146,10 +183,11 @@ function helplaunch_Callback(hObject, eventdata, handles)
 % hObject    handle to helplaunch (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+global HELP_DOC_URL;
 %web([ pwd, '/Final Report.htm#instructions' ]);
 %disp('Final Report.htm');
-web 'Final Report.htm#instructions';
+web(HELP_DOC_URL);  % some trouble with this on Windows
+%web([pwd, '/', HELP_DOC_URL], '-browser');
 
 
 % --- Executes on selection change in ExploreInput.
@@ -173,3 +211,28 @@ function ExploreInput_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% ============================================================================
+%                    U T I L I T Y    F U N C T I O N S            
+% ============================================================================
+
+% === Determine if a specific figure is open
+% --- borked
+function result = isFigureOpen(figureTag)
+    % see: http://stackoverflow.com/questions/4540604
+    figHandles = findall(0, 'Type', 'figure');  % get list of all open figures
+    figHandles = figHandles';  % transpose so 'for' will digest it
+    result = false;
+    if numel(figHandles) == 0
+        return
+    end % if
+    for fh = figHandles
+        % If this figure handle's tag matches what we were given:
+        if strcmp(get(fh, 'Tag'), figureTag)
+            result = true;
+            return;
+        end
+    end % for each figure in figureHandles
+
+% === end function isFigureOpen(figureTag)

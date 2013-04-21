@@ -11,7 +11,11 @@ function varargout = AlgorithmRace(varargin)
 global DEBUGGING
 DEBUGGING = true;
 
-% Last Modified by GUIDE v2.5 19-Apr-2013 02:28:36
+% Tell AlgoLaunch that we're open:
+setappdata(0, 'ALGORACE_OPEN', true);
+setappdata(0, 'ALGORACE_PLOTTING', false); % in case we were killed last time
+
+% Last Modified by GUIDE v2.5 20-Apr-2013 21:23:13
 
 % Popup  and context menu item constants (these must be "declared" in every
 % function they'll be referenced from!):
@@ -113,8 +117,15 @@ function AlgorithmRace_OpeningFcn(hObject, eventdata, handles, varargin) %#ok<*I
     % ------------------------------------------------------------------------
     %                      D R A W   T H E   L O G O 
     % ------------------------------------------------------------------------
-    img = imread('Matlab_Logo_small.png', 'BackgroundColor', [0.5,0.5,0.5]);
-    axes(handles.axLogo);
+    img = imread('./images/Matlab_Logo_small.png', 'BackgroundColor', ...
+                 [0.5,0.5,0.5]);
+             
+    % the tag for this set of axes disappears randomly, hence this
+    % workaround:
+    %axes(handles.axLogo);  
+    ah = findobj(handles.pnlTopBanner, 'Type', 'axes');
+    axes(ah)
+    
     % See: http://www.peteryu.ca/tutorials/matlab/plot_over_image_background
     %imagesc([100, 400], [100, 400], flipdim(img,1));
     %set(gca, 'Visible', 'off');
@@ -130,7 +141,7 @@ function AlgorithmRace_OpeningFcn(hObject, eventdata, handles, varargin) %#ok<*I
     %end
 
     % UIWAIT makes AlgorithmRace wait for user response (see UIRESUME)
-    % uiwait(handles.figure1);
+    % uiwait(handles.AlgoRace);
 
 
 
@@ -168,21 +179,21 @@ function PrintMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to PrintMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-printdlg(handles.figure1)
+printdlg(handles.AlgoRace)
 
 % --------------------------------------------------------------------
 function CloseMenuItem_Callback(hObject, eventdata, handles) %#ok<*DEFNU>
 % hObject    handle to CloseMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-selection = questdlg(['Close ' get(handles.figure1,'Name') '?'],...
-                     ['Close ' get(handles.figure1,'Name') '...'],...
+selection = questdlg(['Close ' get(handles.AlgoRace,'Name') '?'],...
+                     ['Close ' get(handles.AlgoRace,'Name') '...'],...
                      'Yes','No','Yes');
 if strcmp(selection,'No')
     return;
 end
 
-delete(handles.figure1)
+delete(handles.AlgoRace)
 
 % --- Executes during object creation, after setting all properties.
 function axLogo_CreateFcn(hObject, eventdata, handles)
@@ -235,10 +246,6 @@ ah = findobj(ph, 'Type', 'axes');
 % This function sets the chosen algorithm in the 'UserData' of the axes
 % themselves.
 setAxesAlgorithm(ah, get(hObject, 'Value'));
-
-    
-
-
 
 
 % ============================================================================
@@ -580,11 +587,15 @@ if handles.PLOTTING == true
     % the 'go' button callback should set PLOTTING to false when the sort
     % algorithm falls through, but I'll set it here anyway in case the sort
     % algorithm is interrupted/crashes:
-    handles.PLOTTING = false;
+    %handles.PLOTTING = false;
+    clearPlottingFlags();
     disp('User requested to stop plotting.');
     set(hObject, 'String', 'Close');
     guidata(hObject, handles); % update 'handles' structure for other controls
 else
+    % Update global status flag so AlgoLaunch can update its status line
+    % message.
+    setappdata(0, 'ALGORACE_OPEN', false);
     close(gcf);
 end %if
 
@@ -663,6 +674,22 @@ function mnuAxesContextMenu_Callback(hObject, eventdata, handles)
 % ============================================================================
 %                    H E L P E R   F U N C T I O N S            
 % ============================================================================
+
+% == UPDATE GLOBAL "PLOTTING" STATUS FLAGS
+function setPlottingFlags()
+    handles = guidata(gcf);
+    % This is redundant if we're setting appdata, but if it ain't broke...
+    handles.PLOTTING = true;
+    setappdata(0, 'ALGORACE_PLOTTING', true);
+    guidata(gcf, handles); % don't forget to update it!
+
+function clearPlottingFlags()
+    handles = guidata(gcf);
+    handles.PLOTTING = false;
+    setappdata(0, 'ALGORACE_PLOTTING', false);
+    guidata(gcf, handles); % don't forget to update it!
+    
+
 
 % !!! FIXME: THIS BASICALLY NEVER SEEMS TO WORK. INVESTIGATE.
 % === DO SOME FUNCTION FOR ALL AXES
@@ -838,6 +865,33 @@ function updateContextMenuChecks(menuh, selected_item)
 
 % === end function updateContextMenuChecks
 
+% === Display a dialog box that a function is unimplemented.
+function result = unimplementedMsg(varargin)
+    % TODO: Update this to use some non-modal method of interacting with
+    % the user, like, say, a normally-hidden status line on the form.
+    result = false;
+    
+    % Ordinarily, we'd get the list as the first argument, then 'true' to
+    % generate a plot, then the axes handle. Use the axis handle to draw a
+    % text annotation on the given set of axes.
+    if nargin >= 3 && ishandle(varargin{3});
+        %ah = varargin{3};
+        axes(varargin{3});
+        % Center on both dimensions
+        xctr = xlim; xctr = xctr(2)/2;
+        yctr = xlim; yctr = yctr(2)/2;
+        text(xctr, yctr, ...
+             'Unimplemented or other error :(', ...
+             'FontSize', 14, 'BackgroundColor', [0.9, 0.7, 0], ...
+             'HorizontalAlignment', 'center', 'VerticalAlignment', ...
+             'middle', 'EdgeColor', 'black', 'LineWidth', 1, 'Margin', 4);
+    end % if
+    
+    %warndlg({ 'Sorry, that feature is unimplemented', '', 'Apologies,',  ...
+    %          '', '--Team Disarray' });
+             
+% === end function unimplementedMessage()
+
        
 
 % ============================================================================
@@ -859,7 +913,8 @@ function doPlots()
     % --- Set up some things
     % Clear the global "stop_plotting" and update 'handles':
     handles.STOP_PLOTTING = false;
-    handles.PLOTTING      = true;  % what was the purpose of this?
+    %handles.PLOTTING      = true;
+    setPlottingFlags();     % tell other controls we're plotting
     guidata(gcf, handles);  % signal plot in progress
     switchCancelCloseButton('cancel');
 
@@ -871,7 +926,8 @@ function doPlots()
     end    
 
     % --- Finish up
-    handles.PLOTTING = false;
+    %handles.PLOTTING = false;
+    clearPlottingFlags();
     guidata(gcf, handles);  % signal to other controls that we're done
     switchCancelCloseButton('close');
 
@@ -890,8 +946,11 @@ function doPlotsSequential(ax_handles)
     % (this could probably be set in globals above)
     sort_algs     = { @() disp('no alg selected'), @InsertionSort, ...
                       @SelectionSort, @BubbleSort, ...
-                      @MergeSort, @Quicksort, @Quick3, @RadixSort, ...
-                      @TreeSort, @QuicksortMEX };
+                      @MergeSort, @Quicksort, @unimplementedMsg, ...
+                      @unimplementedMsg, @unimplementedMsg, ...
+                      @unimplementedMsg };
+                      %@Quick3, @RadixSort, ...
+                      %@TreeSort, @QuicksortMEX };
     % a cell array of function handles to the various input generators
     input_types   = { @ListRandom, @(n)ListAlreadySorted(n, 'ascend'), ...
                       @(n)ListAlreadySorted(n, 'descend'), ...
@@ -945,17 +1004,28 @@ function doPlotsSequential(ax_handles)
                 % Bail if the control is not in sync with the global flag
                 assert(get(handles.cbPlotIterations, 'Value') == ...
                    get(handles.cbPlotIterations, 'Max'));
-                sorted_list = sorter(input_list, true, ah);
+                sorted_list = sorter(input_list, true, ah);                    
             else
                 sorted_list = sorter(input_list);
             end % if
             times(k) = toc;
             k = k + 1;
+            % If 'sorter' returns false, it means the algorithm is
+            % unimplemented:
+            if ~sorted_list
+                break
+            end % if sorter function handle returns 'false'
             
             % Assert that the list we got back is actually sorted.
             assert(sum(sort(input_list) == sorted_list) == s);
         end % for s = set_size
         total_time = toc; % stop timing (total time)
+        
+        % Check again for a sorted_list of false, draw a message on the
+        % plot, and skip to the next set of axes:
+        if ~sorted_list
+            continue
+        end % if ~sorted_list
 
         % --- Now plot it:
         axes(ah); %#ok<LAXES> %          % set 'ax' to be the current axes
@@ -968,7 +1038,7 @@ function doPlotsSequential(ax_handles)
         %plot(set_size,
         label = sprintf(' - finished (%s)', minutesAndSeconds(total_time));
         updatePanelLabel(pnlh, label);
-        drawnow;
+        drawnow update expose;
 
     end % for ax = ax_handles
 % === end function doSequentialPlots(ax_handles)
