@@ -1,0 +1,428 @@
+<html>
+<head>
+<meta name="generator" content=
+"HTML Tidy for Mac OS X (vers 31 October 2006 - Apple Inc. build 15.6), see www.w3.org">
+<meta name="Title" content=
+"Team Disarray's EduRithm - Educational Demonstration of Sorting Algorithms">
+<meta name="Keywords" content="sorting algorithm, education, visualization, programming, computer science, data structures, matlab, insertion sort, selection sort, merge sort, treesort, quicksort, radix sort, bubble sort">
+<title>Team Disarray's EduRithm - Educational Demonstration of
+Sorting Algorithms</title>
+</head>
+<body>
+<h1>Team Disarray's <em>EduRithm</em></h1>
+A Visual Explorer for Sorting Algorithms Implemented as a MATLAB GUI
+<h1>INTRODUCTION</h1>
+<p>As more and more human knowledge is converted to (or created in)
+electronic formats, quick access to information through automated
+search interfaces is now a fundamental expectation. With
+cutting-edge innovations in the online search engine
+market&mdash;such as "instant search" and natural language
+processing&mdash;shaping user expectations for <em>all</em> types
+computer interactions, the selection of fast and efficient
+algorithms for finding specific items within a set and returning
+them in sorted order becomes all the more important.</p>
+<p>One common search-related user interaction is to present the
+user with a list of items which is filtered to limit the items
+displayed as she types keystrokes matching the desired items. This
+is variously referred to as "typeahead-find," "find-as-you-type,"
+and "autocomplete." The applications of this type of user
+interaction pattern are widespread; some examples are:</p>
+<ul>
+<li>Web search suggestions</li>
+<li>Address book auto-complete in email clients</li>
+<li>Find-as-you-type in operating system file managers, such as
+Windows Explorer or OS X's Finder.</li>
+</ul>
+<p>These interactions are so commonplace that it's easy to lose
+track of the sophisticated programming optimizations that are
+required to deliver matching results so quickly. The goal of this
+project is to illustrate the internal operations of several of the
+most commonly-taught sorting algorithms which might be experienced
+by an undergraduate engineering major, and to discuss the
+considerations (speed, space requirements, "stability" of the input
+set, and so on)</p>
+<p>Team Disarray's ENED1091 final project, called
+<strong>EduRithm</strong> (<em>Educational Demonstration of
+Algorithms</em>) focuses on introducing Computer Science majors
+&mdash;and other Curious Persons&mdash;to a handful of the most
+common sorting algorithms taught in undergraduate-level CS courses:
+1) Insertion Sort, 2) Selection Sort, 3) Bubble Sort, 4) Merge Sort
+, and 5) Quicksort. There are two major components of the
+interface:</p>
+<ul>
+<li>the <a href=
+"#_Algo-Explore_(AlgorithmExplore.m):"><strong>Algo-Explore</strong>
+interface</a>, which contains descriptions of the various sort
+algorithms and allows you to observe their operation for small
+input sets on a bar plot, and</li>
+<li>the <a href=
+"#_Algo-Race_(AlgorithmRace.m):"><strong>Algo-Race</strong>
+interface</a>, which allows you to "race" different sort algorithms
+against each other, and view their performance (time vs. input
+size) for large input sets on three sets of axes.</li>
+</ul>
+<p>See the <a href="#_INSTRUCTIONS_FOR_USE"><em>Instructions for
+Use</em></a> section below to get started using
+<strong>EduRithm</strong> right away!</p>
+<p>Several other algorithms were planned, but not fully implemented
+version of <strong>EduRithm</strong>: quicksort with a 3-way
+partition (Quick3); Radix Sort; Tree Sort (sorting using a Binary
+Search Tree); and Quicksort implemented as a MEX compiled
+executable.</p>
+<h1>BACKGROUND CONCEPTS</h1>
+<p>A very high-level overview of the "design problem" of choosing
+an appropriate sorting algorithms could be expressed in terms of
+selecting the appropriate solution given several key constraints of
+the system for which the sorting routine is being developed for,
+namely:</p>
+<ul>
+<li>the speed with which the algorithm can return a sorted list
+with respect to the number of items in the input set, usually
+expressed in terms of the "order of magnitude," or "Big O" notation
+(discussed briefly below).</li>
+<li>the extra space/complexity required to perform comparisons,
+swaps, merges, or other low-level mechanics of the sorting
+algorithm implementation</li>
+</ul>
+<p>In other words, the outcome of a human-computer
+interaction&mdash;and the resulting frustration or satisfaction
+with that interaction&mdash;depends heavily on the engineering
+choices made in selecting the appropriate "tool for the job."</p>
+<p>The algorithm descriptions to the right of the plot in the
+<a href=
+"#_Algo-Explore_(AlgorithmExplore.m):"><strong>Algo-Explore</strong></a>
+application (see this screenshot) make reference to specific
+algorithms having performance benchmarks of "O(N<sup>2</sup>)" or
+"O(N&middot;log(N))," which is explicitly written as
+N&middot;log<sub>2</sub>(N) ("log base 2 of N"). This is
+colloquially referred to as the<a href=
+"http://en.wikipedia.org/wiki/Big_O_notation">"Big O" notation</a>,
+and it's spoken "order N squared" or "order N <em>log</em> N." The
+<a href="http://en.wikipedia.org/wiki/Insertion_sort">Insertion
+Sort</a> and <a href=
+"http://en.wikipedia.org/wiki/Selection_sort">Selection Sort</a>
+algorithms, for example, are "order N squared"; and <a href=
+"http://en.wikipedia.org/wiki/Quicksort">Quicksort</a> is on
+average N&middot;log<sub>2</sub>(N) for mostly random input and a
+well-selected <a href=
+"http://en.wikipedia.org/wiki/Quicksort#Choice_of_pivot">pivot</a>.</p>
+<p>Without delving too deeply into the mathematics behind the
+definition of "Big O," these expressions can be briefly explained
+as the relationship between input size and <em>computational
+complexity</em> for the task (usually directly perceived by humans
+as the amount of time the algorithm takes to finish), or input size
+and the <em>amount of extra data storage</em> required to perform
+the task.</p>
+<p>An algorithm of O(N<sup>2</sup>) complexity will finish sooner
+than one of O(N&middot;log(N)), because N
+&middot;log<sub>2</sub>(N) &lt; N<sup>2</sup> for all input sizes,
+N. Because constant multipliers are less relevant than
+<em>log(N)</em> or <em>N<sup>2</sup></em>for very large <em>N</em>,
+these constants are ignored when expressing algorithmic complexity
+in Big O notation.</p>
+<p>Some common "order of" expressions, in order of increasing
+complexity/run time, are listed below:</p>
+<p style="margin-left:1.5em;"><strong>O(1)</strong>
+(<em>constant,</em> i.e., <em>independent of input size</em>)<br>
+&lt; <strong>O(N)</strong> (<em>directly proportional to input
+size</em>)<br>
+&lt; <strong>O(log N) &lt; O(N log N)<br></strong> &lt;
+<strong>O(N<sup>2</sup>)</strong> (<em>proportional to the square
+of input size</em>)<br>
+&lt; <strong>O(N<sup>3</sup>)</strong> &lt;
+<strong>O(2<sup>N</sup>)</strong> &lt; <strong>O(N!)</strong> (N
+factorial)</p>
+<p>For more information on various sorting algorithms, including
+expressions of their performance and storage utilizations expressed
+in "Big O" notation, we recommend the following resources:</p>
+<ul>
+<li><a href="http://algorithmist.com/"><em>The
+Algorithmist</em></a> 's article on "<a href=
+"http://algorithmist.com/index.php/Sorting">Sorting</a>"</li>
+<li>Wikipedia's articles on the "<a href=
+"http://en.wikipedia.org/wiki/Big_O_notation">Big O notation</a>"
+and " <a href=
+"http://en.wikipedia.org/wiki/Sorting_algorithm">Sorting
+algorithms</a>."</li>
+<li><a href=
+"http://www.sorting-algorithms.com/">Sorting-Algorithms.com</a> ,
+which includes animated GIFs for a handful of the most common
+sorting algorithms, including pseudo-code for their implementations
+and comprehensive notes on their performance, space utilization,
+and other constraints.</li>
+<li><a href=
+"http://opendatastructures.org">OpenDatastructures.org</a> 's
+"<a href=
+"http://opendatastructures.org/ods-cpp/1_Introduction.html">Introduction</a>"
+and " <a href=
+"http://opendatastructures.org/ods-cpp/11_Sorting_Algorithms.html">Sorting
+Algorithms</a>" sections. OpenDatastructures is a free
+undergraduate-level online course on data structures, which
+includes a good overview of why data structures and algorithms are
+important to modern computer interactions, and a very thorough
+exposition on sorting algorithms, since these two concepts are very
+tightly interdependent .</li>
+</ul>
+<h1><a name="instructions" id="instructions"></a> <a name=
+"_INSTRUCTIONS_FOR_USE"></a>INSTRUCTIONS FOR USE</h1>
+<h2><a name="_Launcher_(AlgoLaunch.m):"></a> Installation</h2>
+<h3>From the GitHub project page:</h3>
+<p><a href=
+"http://github.com/ernstki/ENED1091TeamDisarray/tags">http://github.com/ernstki/ENED1091TeamDisarray/tags</a></p>
+<p>Download the latest "tagged" release (which is "<a href=
+"http://github.com/ernstki/ENED1091TeamDisarray/tree/v1.0.1">v1.0.1</a>"
+as of this writing) as either a .zip or .tar.gz archive and extract
+the archive into a convenient place. This being done, open
+"AlgoLaunch.m" from within the
+"ENED1091TeamDisarray-<em>&lt;tag&gt;</em>" folder with MATLAB, and
+click the "Run AlgoLaunch.m" button (the green arrow) in the
+toolbar.</p>
+<h3>From Blackboard:</h3>
+<p>Extract <strong>TeamDisarray_ENED1091_final.zip</strong> to a
+convenient place; descend into the "EduRithm_v1.0" subfolder, and
+open the file called "AlgoLaunch.m" with MATLAB. Then click the
+"Run AlgoLaunch.m" button (the green arrow) in the MATLAB
+toolbar.</p>
+<p style="margin-left:1.5em;"><strong><em><u>HINT</u></em></strong>
+<em>: Usually, you can just double-click the .m file within the
+operating system's file manager to open directly in
+MATLAB.</em></p>
+<h2>Launcher (<em>AlgoLaunch.m</em>):</h2>
+<p><img src="Final_Report_files/image001.png" alt=
+"A screenshot of the Algo-Launch window" align="right" height="148"
+hspace="9" width="247">The launcher window (shown at right) allows
+you to invoke either&mdash;or both&mdash;the <a href=
+"#_Algo-Explore_(AlgorithmExplore.m):">algorithm explorer</a> and
+the <a href="#_Algo-Race_(AlgorithmRace.m):">algorithm race</a>
+application with a single click.</p>
+<p>The drop-down list above the <strong>Algo-Explore</strong>
+button allows you to (optionally) select an algorithm to open with
+that interface.</p>
+<p>A green message displayed beneath each button informs you of
+which applications are already open (or plotting), in case the
+figures are hidden behind other windows.</p>
+<p>The <strong>?</strong> button in the lower-right corner will
+open online help (this document) for the EduRithm program in a web
+browser.</p>
+<h3>Invocation:</h3>
+<p style="margin-left:1.5em;font-family:monospace">&gt;&gt;
+<span style="color:green">% From within the 'EduRithm' program
+folder:</span><br>
+&gt;&gt; AlgoLaunch</p>
+<h2><a name="algoexplore" id="algoexplore"></a><a name=
+"_Algo-Explore_(AlgorithmExplore.m):"></a>Algo-Explore
+(<em>AlgorithmExplore.m</em>):</h2>
+<p><img src="Final_Report_files/image002.png" alt=
+"A screenshot of the Algo-Explore window" align="right" height=
+"148" hspace="9" width="189">The purpose of the
+<strong>Algo-Explore</strong> application is to visually examine
+the operation of several of the common sorting algorithms. Short
+text descriptions are given on the left hand side of the plot; more
+information about each algorithm can be viewed in a web browser by
+clicking the "Online Reference" button below the description
+pane.</p>
+<p>The controls on the <strong>Algo-Explore</strong> figure have
+popup ("tooltip") help, which can be viewed by briefly hovering
+your mouse cursor over the control you want to know more about.</p>
+<h3>Invocation</h3>
+<p>To run <strong>Algo-Explore</strong> for a specific algorithm,
+you can select an algorithm from the <a href=
+"#_Launcher_(AlgoLaunch.m):">launch window</a>, or choose the sort
+algorithm from the drop-down list at the top of the figure window.
+You can change the number of elements fed into the sort algorithm
+by modifying the value in the "Set Size" edit box (up to a maximum
+of 5000).</p>
+<p>The <strong>Algo-Explore</strong> application can also be
+invoked from the MATLAB command line:</p>
+<p style="margin-left:1.5em;font-family:monospace">&gt;&gt;
+<span style="color:green">% From within the 'EduRithm' program
+folder:</span><br>
+&gt;&gt; AlgorithmExplore</p>
+<h2><a name="_Algo-Race_(AlgorithmRace.m):"></a>Algo-Race
+(<em>AlgorithmRace.m</em>):</h2>
+<p><img src="Final_Report_files/image003.png" alt=
+"A screenshot of the Algo-Race window" align="right" height="148"
+hspace="9" width="165">The purpose of <strong>Algo-Race</strong> is
+to compare the speed and efficiency of different sorting techniques
+with different types of data sets. Underneath each figure is a
+drop-down menu from which a variety of different sorting algorithms
+are available. The output will be a graph of Time vs. Number of
+Items (N) in the input set. The input set options can be changed in
+the blue box located in the lower right. If you also enable the
+<strong>Plot Iterations</strong> option by ticking the appropriate
+checkbox (this works best for small input sizes less than about
+500), you can watch the contents of the input set being sorted in
+real-time, as shown in the second figure to the right.</p>
+<p>All controls on the <strong>Algo-Race</strong> figure have
+pop-up contextual help (<em>a.k.a.,</em> "tooltips) which can be
+viewed by briefly hovering your mouse pointer over the control you
+want to learn more about.</p>
+<p>The <strong>Max Input Size</strong> slider and edit box
+determine the size of the largest array the algorithm will sort.
+The first array sorted will contain 25 values and will sort
+multiple arrays increasing in size by 25 each time until the
+<strong>Max Input Size</strong> is reached. You can change the
+value using either the slider, or by typing an appropriate value
+into the edit box. Keep in mind that values much above 100 will
+result in slow operation if the <strong>Plot Iterations</strong>
+checkbox is also checked, which draws the contents of the input
+list on a bar chart as it's being sorted for each increment of the
+input size.</p>
+<p><img src="Final_Report_files/image004.png" alt=
+"A screenshot of the Algo-Race window in the &quot;Plot Iterations&quot; mode"
+align="right" height="148" hspace="9" width="165">Some sorting
+algorithms work better under different types of constraints on the
+input set. The <strong>Input Characteristics</strong> option group
+will allow you to fill the array with different kinds of data sets:
+<strong>Random</strong>, <strong>Already Sorted
+(A)</strong>(scending), <strong>Already Sorted
+(D)</strong>(escending), and <strong>Few Unique</strong> (which
+means lots of duplicates). Some sorting algorithms are more
+efficient than others at dealing with various types of input, and
+these options allow you to test that. Quicksort, for example, is
+very fast for a random sampling of input data, but the meager
+Bubble Sort will vastly outperform Quicksort on data that is
+already sorted.</p>
+<p>The <strong>Go</strong> button starts plotting with the first
+set of axes, for all increments of the input set size starting at
+25, up to<em>Max Input Size.</em> The <strong>Close button</strong>
+doubles as a "Cancel" button to stop all the axes from plotting if
+you enter a <em>Max Input Size</em> value that's taking too long to
+finish.</p>
+<h3>Invocation</h3>
+<p>To run <strong>Algo-Race</strong>, click the appropriate button
+on the <a href="#_Launcher_(AlgoLaunch.m):">launch window</a>, then
+chose different sort algorithms for each figure from the drop-down
+menus below each set of axes, if desired. Click the "Go" button
+when you're ready to start the race.</p>
+<p>The <strong>Algo-Race</strong> application can also be invoked
+from the MATLAB command line:</p>
+<p style="margin-left:1.5em;font-family:monospace">&gt;&gt;
+<span style="color:green">% From within the 'EduRithm' program
+folder:</span><br>
+&gt;&gt; AlgorithmRace</p>
+<h2>Known Bugs:</h2>
+<ul>
+<li>The "Interleaved Plots" option for Algo-Race (which plots each
+input set size for all three algorithms/axes before incrementing
+the input set size) is disabled in this release of EduRithm.</li>
+<li>When the Plot Iterations option is unchecked in Algo-Race, you
+may need to press Ctrl + C in the MATLAB command window in order
+to cancel a long-running plot (e.g., for a large max input
+size), as the Cancel button may fail to respond.</li>
+<li>
+<p><a href=
+"http://en.m.wikipedia.org/wiki/Recursion_(computer_science)">Recursive
+algorithms</a> split the input data into smaller tasks and call
+<em>themselves</em> in a nested fashion to achieve the desired
+outcome. MATLAB places a limit on the number of recursive calls a
+function can make to prevent exhausting the resources of your
+computer and causing MATLAB to become unresponsive ("hang") or
+crash.</p>
+<p>You may receive a message like the one below for an input size
+greater than about 5000 while using a recursive sort algorithm like
+Merge Sort or Quicksort:</p>
+<p style="color:red"><tt>Maximum recursion limit of 500 reached.
+Use set(0,'RecursionLimit',N) to change the limit.<br>
+Be aware that exceeding your available stack space can crash MATLAB
+and/or your computer.</tt></p>
+</li>
+</ul>
+<h1><a name="_CREDITS"></a> CREDITS</h1>
+<p>The Team Disarray <em>Sorting Algorithm Explorer</em>
+incorporates ideas (and in some cases code) from the following
+MathWorks File Exchange projects:</p>
+<ol>
+<li>Rosetta Code article "Sorting algorithms"<br>
+<a href=
+"http://rosettacode.org/wiki/Sorting_algorithms">http://rosettacode.org/wiki/Sorting_algorithms</a></li>
+<li>Rosetta Code "Selection Sort"<br>
+<a href=
+"http://rosettacode.org/wiki/Selection_sort">http://rosettacode.org/wiki/Selection_sort</a></li>
+<li>Rosetta Code "Insertion Sort"<br>
+<a href=
+"http://rosettacode.org/wiki/Insertion_sort">http://rosettacode.org/wiki/Insertion_sort</a></li>
+<li>Rosetta Code article "Quicksort"<br>
+<a href=
+"http://rosettacode.org/wiki/Quicksort">http://rosettacode.org/wiki/Quicksort</a></li>
+<li><strong>simsort</strong> by - Giampiero Campa <a href=
+"http://www.mathworks.com/matlabcentral/fileexchange/7937-simsort">http://www.mathworks.com/matlabcentral/fileexchange/7937-simsort</a></li>
+<li>Tom Dyson's invaluable <a href="http://wordoff.org">Wordoff</a>
+web app for stripping proprietary cruft from MS Word's HTML
+output<br>
+<a href=
+"http://wordoff.org/about">http://wordoff.org/about</a></li>
+</ol>
+<h1>CHALLENGES</h1>
+<p>One of the big challenges we faced as a group was implementing
+the sorting algorithms themselves in the MATLAB environment in
+their most raw form (i.e. not using any pre-implemented MATLAB
+functions). While a few algorithms were able to be overcome, we
+soon realized that they weren't necessarily the focus of the
+project and opted to use online resources to fill in the gaps.</p>
+<p>Even so, the implementation of Quicksort we "borrowed" from
+<a href="#_CREDITS">Rosetta Code</a> was a heavily "vectorized"
+version, relying on MATLAB's highly-optimized native
+element-by-element comparisons of one-dimensional vectors&mdash;and
+therefore exhibited <em>better</em> performance in its MATLAB
+implementation (closer to O[N] than the expected O[N
+&middot;log[N]]) than would've been expected from an implementation
+of the algorithm using only iteration over array elements and
+single-element comparison operators.</p>
+<p>Another major challenge was deciding how we wanted the graphs to
+update in Race mode. Our original vision had all three running
+simultaneously, however, given the time constraints of the project
+and the difficulty in properly implementing this feature, we opted
+to disable this functionality prior to release.. We opted for
+low-delay comparisons between completed runs of each of the
+algorithms (the final product).</p>
+<p>Several specific nuances of MATLAB GUI presented the group with
+some problems, too. One was that we decided to use of the UserData
+property of axes controls for storing data between iterations of
+the plotting routines. This seemed to be cleared out after each
+invocation, such that each set of axes in
+<strong>Algo-Race</strong> would "forget" its associated algorithm,
+so a separate routine had to be written
+(forceUpdateAllAxesUserData()) to update the UserData properties
+after each pass.</p>
+<p>Another was the use of for loops to iterate over GUI handles
+returned by findobj. Much like "foreach" or "for x in" constructs
+from other programming languages, MATLAB's for can iterate over
+elements in a numerical or cell array, but <strong>only
+if</strong>, it's what MATLAB calls a "column vector," that is a
+one-dimensional vector consisting of just a single
+<em>row&mdash;</em>in the parlance of computer scientists, a
+regular "list" or "array." So in order to get a for loop to process
+<strong>all</strong> elements of the cell array returned by
+findobj, we discovered (after much frustration) that we needed to
+do a transpose using the MATLAB's "&iuml;&frac14;&Dagger;"
+(apostrophe) operator on the cell array before iterating over it in
+the loop.</p>
+<h1>CONCLUSION</h1>
+<p>While the project had its slim-downs and cut-backs (engineering
+"design constraints" which we took in stride), our original vision
+was ambitious enough to produce a solid finished product, with
+enough educational value, we hope, to benefit first-year Computer
+Science students&mdash;and other Curious Persons&mdash;in the
+future.</p>
+<h1>REFERENCES</h1>
+<ol>
+<li>Sorting-Algorithms.com &ndash; <em>implementation details for
+most of the algorithms implemented for our project; animations of
+each sort algorithm at work for different types of input
+sets</em><br>
+<a href=
+"http://www.sorting-algorithms.com">http://www.sorting-algorithms.com</a></li>
+<li>"Sorting Out Sorting" (video) by the Computer Systems Research
+Group, U. of Toronto (1981) &ndash; <em>fantastic visualizations
+for many common algorithms, and the inspiration for this
+project</em><br>
+<a href=
+"http://youtu.be/SJwEwA5gOkM">http://youtu.be/SJwEwA5gOkM</a></li>
+<li>The Algorithmist: "Sorting" &ndash; <em>comparison of "Big O"
+notation for a number of common algorithms</em><br>
+<a href=
+"http://algorithmist.com/index.php/Sorting">http://algorithmist.com/index.php/Sorting</a></li>
+</ol>
+</body>
+</html>
