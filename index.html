@@ -7,10 +7,17 @@
 <meta name="Keywords" content="sorting algorithm, education, visualization, programming, computer science, data structures, matlab, insertion sort, selection sort, merge sort, treesort, quicksort, radix sort, bubble sort">
 <title>Team Disarray's EduRithm - Educational Demonstration of
 Sorting Algorithms</title>
+<!-- CSS by Better Web Readability Project (https://code.google.com/p/better-web-readability-project/) -->
+<link rel="stylesheet" href="css/reset.css" type="text/css" media="screen, projection">
+<link rel="stylesheet" href="css/typography.css" type="text/css" media="screen, projection">
+<style type="text/css">
+	.main {  margin:0 auto;  width:600px;  }
+</style>
 </head>
 <body>
+<div class="main">
 <h1>Team Disarray's <em>EduRithm</em></h1>
-A Visual Explorer for Sorting Algorithms Implemented as a MATLAB GUI
+<h4>A Visual Explorer for Sorting Algorithms </br>Implemented as a MATLAB GUI</h4>
 <h1>INTRODUCTION</h1>
 <p>As more and more human knowledge is converted to (or created in)
 electronic formats, quick access to information through automated
@@ -117,7 +124,7 @@ the task.</p>
 than one of O(N&middot;log(N)), because N
 &middot;log<sub>2</sub>(N) &lt; N<sup>2</sup> for all input sizes,
 N. Because constant multipliers are less relevant than
-<em>log(N)</em> or <em>N<sup>2</sup></em>for very large <em>N</em>,
+<em>log(N)</em> or <em>N<sup>2</sup></em> for very large <em>N</em>,
 these constants are ignored when expressing algorithmic complexity
 in Big O notation.</p>
 <p>Some common "order of" expressions, in order of increasing
@@ -310,8 +317,7 @@ the input set size) is disabled in this release of EduRithm.</li>
 may need to press Ctrl + C in the MATLAB command window in order
 to cancel a long-running plot (e.g., for a large max input
 size), as the Cancel button may fail to respond.</li>
-<li>
-<p><a href=
+<li><p><a href=
 "http://en.m.wikipedia.org/wiki/Recursion_(computer_science)">Recursive
 algorithms</a> split the input data into smaller tasks and call
 <em>themselves</em> in a nested fashion to achieve the desired
@@ -321,7 +327,7 @@ computer and causing MATLAB to become unresponsive ("hang") or
 crash.</p>
 <p>You may receive a message like the one below for an input size
 greater than about 5000 while using a recursive sort algorithm like
-Merge Sort or Quicksort:</p>
+Merge Sort or Quicksort:</p></br>
 <p style="color:red"><tt>Maximum recursion limit of 500 reached.
 Use set(0,'RecursionLimit',N) to change the limit.<br>
 Be aware that exceeding your available stack space can crash MATLAB
@@ -395,7 +401,7 @@ one-dimensional vector consisting of just a single
 regular "list" or "array." So in order to get a for loop to process
 <strong>all</strong> elements of the cell array returned by
 findobj, we discovered (after much frustration) that we needed to
-do a transpose using the MATLAB's "&iuml;&frac14;&Dagger;"
+do a transpose using the MATLAB's "<tt>'</tt>"
 (apostrophe) operator on the cell array before iterating over it in
 the loop.</p>
 <h1>CONCLUSION</h1>
@@ -424,5 +430,7 @@ notation for a number of common algorithms</em><br>
 <a href=
 "http://algorithmist.com/index.php/Sorting">http://algorithmist.com/index.php/Sorting</a></li>
 </ol>
+</div>
+</div>
 </body>
 </html>
