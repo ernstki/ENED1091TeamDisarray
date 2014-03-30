@@ -8,7 +8,7 @@ font-weight:normal;
 
 p { padding:0 0  0.8125em 0; color:#111; font-weight:300;}
 li > p { display:inline; } /* fixes <p> inside <li> wrapping to next line */
-p + p { text-indent:1.625em;}
+/* p + p { text-indent:1.625em;} */
 p + h1, p + h2, p + h3, p + h4 { margin-top: 0.875em; }
 
 
